@@ -1,0 +1,23 @@
+name	value	source
+layup.version	0.1.0-dev	run
+psb.sha256	97c657b6cc38dd2592c84784b0da85af7766a7e31c8cbfe824d67ea794c894fd	command
+vision.sha256	—	command
+forge.plan	free	command
+forge.visibility	public	forge
+app.permissions	contents:write issues:write metadata:read pull_requests:write	forge
+operator.id	1675602	forge
+idea-owner.id	1675602	forge
+intake.cap	50.0,48.0	command
+lease.H	10	command
+watch.T	1	command
+harness.claude.cap	5.00	register
+harness.claude.wall	30	register
+harness.devin.cap	—	register
+harness.devin.wall	15	register
+pin.source	https://github.com/pharzam/armature	run
+pin.commit	a95965534b14b0bf14ad74da0c9a45b5f4aedf88	run
+pin.tree	8ffb250afd584da8b418bc220fb6d72e802924ce	run
+pin.time	2026-10-11T20:26:39Z	run
+issue.intake	—	forge
+issue.control	—	forge
+watch	—	run
