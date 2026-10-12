@@ -8,3 +8,4 @@ S-445dee66	T-83vl	1	product-owner	claude	2.1.296 (Claude Code)	claude-opus-5-5	1
 S-21d94fd8	T-vagk	1	product-owner	claude	2.1.296 (Claude Code)	claude-opus-5-5	1f0d4de03084cb89f7c1be68497af8f3dffd46ca	16cf7303c89e360819e89ee185f949afac140e4d	1096	274	1000000	5.00	30	ANTHROPIC_DEFAULT_HAIKU_MODEL=claude-sonnet-5-5	—
 S-4e900a71	T-w3za	1	product-owner	claude	2.1.296 (Claude Code)	claude-opus-5-5	1f0d4de03084cb89f7c1be68497af8f3dffd46ca	d784faba41279334f62a59817435c6233611a301	1096	274	1000000	5.00	30	ANTHROPIC_DEFAULT_HAIKU_MODEL=claude-sonnet-5-5	—
 S-e1c64020	T-tyf6	1	product-owner	claude	2.1.296 (Claude Code)	claude-opus-5-5	1f0d4de03084cb89f7c1be68497af8f3dffd46ca	6e6c20f58535a3221ec4e4783dfb321be77ce032	1073	269	1000000	5.00	30	ANTHROPIC_DEFAULT_HAIKU_MODEL=claude-sonnet-5-5	—
+S-c24921f3	T-2zzu	1	qa-engineer	devin	devin 3000.11.3 (9c803229faa4)	swe-2-high	1f0d4de03084cb89f7c1be68497af8f3dffd46ca	c6b7356440c6fdc9747a54361b8e19fcf0dd5a63	1149	288	262000	—	15	—	—
