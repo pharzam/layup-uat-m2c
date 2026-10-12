@@ -1,0 +1,35 @@
+question	state	reason	session
+Q-001	closed	Names the stack (Go, PostgreSQL adapter with versioned migrations, synchronous HTTP/JSON, pinned Go toolchain with cgo for the race gate), matching the PSB header.	S-7498a5a2
+Q-002	closed	Picks a reading: the 60s start guard stays a minimum filter, and the R-TIME-02 stage guards do the real fit check with caps as ceilings, so a short-budget domain turn stops before dispatch rather than the guard being raised.	S-7498a5a2
+Q-003	closed	Places the 60s queue cap inside the 180s handler-entry deadline (at most 120s left to execute), consistent with R-TIME-01 and the 200s gateway/write-timeout chain.	S-7498a5a2
+Q-004	open	Confirmation is explicitly not done, and the fallback (502 DECISION_INVALID) would fail every intent classification if Choice lacks per-option probabilities, so whether the 0.70/0.20 policy works is still unresolved; R-DEC-11 covers input caps, not the response shape, and section 20 has no row for this check.	S-7498a5a2
+Q-005	closed	Defines ambiguous intent as exactly a failure of the 0.70 top-probability / 0.20 margin policy, with no other signal.	S-7498a5a2
+Q-006	open	The supplier and due date of the KB wire contract are stated as not yet assigned (only that they come before the Gate A freeze); only the fallback boundary for a KB that cannot enforce scope is answered.	S-7498a5a2
+Q-007	open	The role-to-corpus/filter mapping and the allowlisted role set are not given, only deferred to the section 20.1 freeze; only the meaning of authorization scope is answered.	S-7498a5a2
+Q-008	closed	States the design: the deterministic preparer carries context fields (session filters, recent user references, cited document IDs as boosts) without resolving pronouns, and journaled optional LLM rewriting is the fallback.	S-7498a5a2
+Q-009	closed	Fixed per-locale template with no LLM call or usage charge, consistent with R-POLICY-02 and the 100% template language floor.	S-7498a5a2
+Q-010	open	No further deterministic meta cases are listed (that is deferred to spec time), and the rule "direct lookup when answerable by direct lookup" is circular, so which meta cases must be deterministic is still untestable.	S-7498a5a2
+Q-011	closed	Gives a testable trigger (the unsummarized tail would breach a consuming role's usable window plus the stated margin) and a chunk rule (the largest forward chunk that fits the summarizer window); the numbers come from pinned config.	S-7498a5a2
+Q-012	closed	The quota principal is the (tenant_id, subject) pair, the same key as R-AUTH-03 ownership.	S-7498a5a2
+Q-013	closed	Reject with 429 PRINCIPAL_LIMIT before any claim, with Retry-After and no eviction; this code already exists in the error catalog.	S-7498a5a2
+Q-014	closed	Gives a testable rule: max(30s floor, p90 of the last 100 completed active-turn durations), updated only on completed turns and pinned as config.	S-7498a5a2
+Q-015	closed	Defines demonstrable progress as the next bounded chunk from the coverage cursor fitting the summarizer input budget after UTF-8-safe subchunking; if it cannot fit, the result is 422 SESSION_CONTEXT_EXHAUSTED.	S-7498a5a2
+Q-016	closed	Answer rate counts any committed answer/grounded outcome on labelled answerable cases; correctness is gated separately by the supported-claims floors.	S-7498a5a2
+Q-017	closed	Defines consequential claims (money, safety, entitlement, dates, procedural steps, decision-misleading) and assigns annotation to the held-out set's human reviewers at case design, under a rubric.	S-7498a5a2
+Q-018	closed	Language is judged by the human rubric or audited assessor against the locale contract; untranslated source titles, URIs and citation metadata are excluded from scoring.	S-7498a5a2
+Q-019	closed	Gives a testable suppression rule: k >= 5 distinct principals and no principal above 50% of a cell, with only the approved non-content fields.	S-7498a5a2
+Q-020	closed	Cases are authored by the idea owner and reviewed independently by the Gate C reviewer, in the product-support/manuals domain, with frozen per-case synthetic evidence snapshots.	S-7498a5a2
+Q-021	closed	Names the rubric author (idea owner) and approver (operator), accepts an audited LLM assessor with human review of critical and disputed scores, and names the reviewer (operator or independent session, never the implementer).	S-7498a5a2
+Q-022	closed	For the pilot, history is a snapshot, an accepted limitation; for real data, the decision is made at deployment-profile freeze by the idea owner with operator approval, which fits R-SEC-08's per-deployment duty.	S-7498a5a2
+Q-023	closed	Split decided: the 100 active turns is a measure, and session ordering and bounded waiting are needs.	S-7498a5a2
+Q-024	closed	Reclassed as context (planning rationale), with draft R-196 to be re-anchored to the queue-cap requirement.	S-7498a5a2
+Q-025	closed	Reclassed as context; the enforceable rules are in R-TIME-01, R-TIME-02 and R-SCHED-11.	S-7498a5a2
+Q-026	closed	Reclassed as need (pass/fail conformance obligation).	S-7498a5a2
+Q-027	closed	Reclassed as need (qualitative failure-mode proofs).	S-7498a5a2
+Q-028	closed	Reclassed as constraint (gate-blocking conditions).	S-7498a5a2
+Q-029	closed	Reclassed as need (required evidence, no numeric criterion).	S-7498a5a2
+Q-030	closed	Reclassed as constraint (security invariant); the Gate C measurement is extra evidence.	S-7498a5a2
+Q-031	closed	Reclassed as need, the same class as R-GATE-02.	S-7498a5a2
+Q-032	closed	B = 50 USD, a decimal below U.	S-7498a5a2
+Q-033	closed	U = 100 USD, a decimal above B.	S-7498a5a2
+Q-034	closed	Appetite is 48 hours, a decimal.	S-7498a5a2
