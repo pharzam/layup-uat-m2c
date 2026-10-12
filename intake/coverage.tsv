@@ -1,0 +1,10 @@
+id	kind	fact	requirement	question	session
+C-001	class	9	—	Only the 100-turn bound is quantitative while "preserves order within each session" and "bounds waiting work" are qualitative obligations — should this span be split into a measure plus needs, or reclassed?	S-c24921f3
+C-002	class	225	—	The next span calls this a planning approximation rather than a guarantee — is it a normative measure or supporting rationale that should be context, which would leave draft R-196 unsupported?	S-c24921f3
+C-003	class	460	—	This describes how the start and stage guards apply the budget rather than stating a measurable bound — should it be classed constraint (or context) instead of measure?	S-c24921f3
+C-004	class	583	—	A12 is a required conformance-test proof with no quantitative target — should this A-family row be classed need rather than measure?	S-c24921f3
+C-005	class	597	—	A26 lists qualitative failure-mode proofs with no numeric threshold — should it be classed need rather than measure?	S-c24921f3
+C-006	class	604	—	A33 states gate-blocking conditions rather than a measurable target — should it be classed need or constraint rather than measure?	S-c24921f3
+C-007	class	607	—	A36 describes required evidence and separation of bootstrap from product acceptance, with no numeric criterion — should it be classed need rather than measure?	S-c24921f3
+C-008	class	608	—	A37 states a security invariant plus a qualitative Gate C check — should it be classed need or constraint rather than measure?	S-c24921f3
+C-009	class	664	—	Fact 663 (R-GATE-02) is classed need for a gate-pass obligation while this structurally identical Gate B obligation is measure — does "at least one real LLM" justify measure, or should it be need?	S-c24921f3
