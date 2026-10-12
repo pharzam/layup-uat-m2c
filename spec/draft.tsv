@@ -1,0 +1,588 @@
+id	kind	statement	covers	criterion	session
+R-001	non-functional	The repository and service are named chat-orchestrator.	4	The repository and the deployed service name are both chat-orchestrator.	S-e1c64020
+R-002	non-functional	The service is implemented in Go, with PostgreSQL as the durable adapter.	5	The source is Go and the durable store adapter targets PostgreSQL.	S-e1c64020
+R-003	non-functional	The service runs as a single active writer and exposes a synchronous, non-streaming HTTP API.	6	Only one writer process is active at a time, and no endpoint streams a response.	S-e1c64020
+R-004	requirement	The service maintains durable conversations that combine an external Knowledge Base, a replaceable Decision Model and a replaceable LLM.	7	A turn retrieves from the KB, takes a typed decision and generates through the LLM, and swapping the Decision Model or LLM adapter changes no core code.	S-e1c64020
+R-005	requirement	A client can resume a stored session after a disconnect or a process restart.	8	After the client disconnects or the service restarts, the session and its committed turns can still be read and continued.	S-e1c64020
+R-006	success-criterion	By default the service admits at most 100 active turns, keeps order within each session and bounds waiting work.	9	At most 100 active turns at default configuration; same-session turns complete in admission order; the wait queue has a fixed bound.	S-e1c64020
+R-007	requirement	The service reduces avoidable token consumption through context management, incremental summaries, idempotency and provider-native caching.	10	Tests show bounded context, reuse of summaries, no repeated paid calls on idempotent replay, and cache directives on supported adapters.	S-e1c64020
+R-008	non-functional	The capitalized keywords MUST, MUST NOT, REQUIRED, SHOULD, SHOULD NOT and MAY are interpreted per BCP 14 (RFC 2119, RFC 8174).	14	Every normative keyword is read per BCP 14 only when capitalized.	S-e1c64020
+R-009	non-functional	Every normative requirement ID stays traceable to implementation or configuration evidence and named acceptance tests.	15	A traceability record maps each requirement ID to evidence and at least one named test.	S-e1c64020
+R-010	non-functional	Any departure from a SHOULD requirement has a recorded rationale and matching test expectations.	16	Each SHOULD departure has a written rationale and a test expectation.	S-e1c64020
+R-011	requirement	The service owns the conversation API, state semantics, orchestration, scheduling and idempotency.	19	These concerns are implemented within the service, not delegated to an external product.	S-e1c64020
+R-012	non-functional	Durable persistence uses PostgreSQL as the pilot adapter behind application-owned persistence contracts.	20	The core depends only on persistence interfaces, and the PostgreSQL adapter implements them.	S-e1c64020
+R-013	non-functional	Knowledge retrieval uses the existing external KB; the service supplies only the outbound adapter and protocol mapping.	21	No retrieval engine is built; the KB adapter maps the approved wire contract.	S-e1c64020
+R-014	non-functional	Typed decisions use TypeSafe AI Jev as the first adapter behind a normalized contract that another provider can implement.	22	The Jev adapter implements the normalized decision contract, and a test double implements the same contract.	S-e1c64020
+R-015	non-functional	Generation and summarization use an application-owned LLM contract with Anthropic Messages and OpenAI-compatible Chat Completions adapters.	23	Both protocol adapters implement the same LLM contract.	S-e1c64020
+R-016	requirement	Each applicable LLM adapter implements and tests provider-native prompt caching.	24	Adapter tests show the provider cache directives being sent and cache usage being parsed.	S-e1c64020
+R-017	non-functional	A generic KB or infrastructure cache is optional and sits behind a replaceable adapter; Redis is not required.	25	The service runs with no cache and no Redis.	S-e1c64020
+R-018	non-functional	Identity issuance and model hosting are external dependencies, not products of this project.	26	The project contains no identity provider and no model-hosting component.	S-e1c64020
+R-019	non-functional	The core workflow depends on application-owned capability types, not database or AI-provider wire types.	27	Core packages import no database driver and no provider SDK or wire type.	S-e1c64020
+R-020	requirement	The service ships a working PostgreSQL adapter, a KB outbound adapter, a Jev adapter and both selected LLM protocol adapters.	28	Each adapter is present, configured and passes its conformance tests.	S-e1c64020
+R-021	non-functional	A selected remote persistence, summary or cache integration provides a real configured outbound client with a versioned protocol and conformance tests.	29	Each selected remote integration has a configured client, a protocol version and conformance tests, not only a Go interface.	S-e1c64020
+R-022	non-functional	The pilot introduces no external KB, model training or hosting platform, identity provider, UI, distributed work queue or extra microservice.	30	The delivered system contains none of the listed components.	S-e1c64020
+R-023	non-functional	Streaming, WebSockets, async job delivery, automatic provider failover, autonomous tools, full-response or semantic caching and multi-writer scheduling are out of scope.	31	None of the deferred features is implemented.	S-e1c64020
+R-024	non-functional	The service guards against an accidental second process but does not need to support multiple active writers.	32	A second process cannot become an active writer.	S-e1c64020
+R-025	success-criterion	At the default configuration at most 100 turns are active, and at most one per session.	37	Active turns never exceed 100 globally or 1 per session.	S-e1c64020
+R-026	non-functional	A logical request commits at most one user/assistant pair and one conversation-version increment.	38	Under retries and duplicates, each logical request adds at most one pair and one version increment.	S-e1c64020
+R-027	non-functional	A successful chat response is sent only after its complete conversational outcome is durably committed.	39	No 200 chat response precedes the durable commit of its outcome.	S-e1c64020
+R-028	requirement	The next turn in a session loads the latest committed state after its predecessor's outcome is resolved.	40	A turn's context includes the preceding committed turn of the same session.	S-e1c64020
+R-029	non-functional	Failed, cancelled or uncertain attempts never appear as completed turns in the transcript.	41	The transcript holds only completed turns.	S-e1c64020
+R-030	non-functional	Cache state, provider conversation handles and process memory are never the authoritative record of a conversation.	42	With caches cleared and the process restarted, the conversation is fully restored from the durable store.	S-e1c64020
+R-031	non-functional	The persistent deployment uses PostgreSQL with versioned migrations, a pinned database and toolchain profile and a documented backup and restore procedure.	47	Migrations are versioned, versions are pinned, and the backup and restore procedure is documented and tested.	S-e1c64020
+R-032	non-functional	An in-memory store is limited to tests or labelled synthetic development mode and never satisfies durable-persistence acceptance.	48	The in-memory store is unavailable outside tests or labelled dev mode, and durability tests run against PostgreSQL.	S-e1c64020
+R-033	non-functional	Deployment uses one intended replica with a non-overlapping replacement strategy, such as Recreate, in addition to the runtime writer guard.	49	The deployment manifest declares one replica and a non-overlapping strategy.	S-e1c64020
+R-034	non-functional	Outside synthetic dev mode, the service validates a bearer token's signature, algorithm allowlist, issuer, audience, expiry and not-before before touching a session or request record.	53	Tokens failing any one check are rejected before any session or request access.	S-e1c64020
+R-035	non-functional	The pilot JWT profile uses RS256 with a configured trusted key or JWKS source and normalizes claims into an application-owned principal.	54	Non-RS256 tokens are rejected, and the principal is built from the claims.	S-e1c64020
+R-036	non-functional	The iss, aud, exp and iat claims, and nbf where present, are validated as issuer, audience and validity interval.	55	A token with a wrong issuer or audience, or outside its validity, is rejected.	S-e1c64020
+R-037	success-criterion	The tenant_id claim is a non-empty tenant identifier.	56	tenant_id is non-empty and at most 128 UTF-8 bytes.	S-e1c64020
+R-038	success-criterion	The sub claim is a non-empty subject identifier.	57	sub is non-empty and at most 128 UTF-8 bytes.	S-e1c64020
+R-039	success-criterion	The roles claim holds only allowlisted role strings.	58	At most 32 roles, each at most 64 bytes.	S-e1c64020
+R-040	non-functional	The authz_version claim is an optional trusted authorization revision, required where revision-based revocation is claimed.	59	A deployment claiming revision-based revocation rejects tokens without authz_version.	S-e1c64020
+R-041	non-functional	The normalized principal is {tenant_id, subject, roles, authz_version}.	60	The principal type has exactly those four fields.	S-e1c64020
+R-042	non-functional	Session ownership derives from (tenant_id, subject), and client JSON or untrusted headers cannot override owner, tenant or role.	61	Override attempts in the body or headers have no effect on ownership.	S-e1c64020
+R-043	non-functional	Unknown, deleted and other-owner resources return the same 404 after authentication, with no existence oracle.	62	The three cases return byte-identical 404 responses.	S-e1c64020
+R-044	non-functional	Retrieval permissions derive server-side from trusted roles and authorization scope, not from the session identifier.	63	Retrieval scope changes with the roles, not with the session ID.	S-e1c64020
+R-045	requirement	The service re-evaluates its trusted authorization snapshot before starting queued work and before returning history, status or a replay.	64	Revoked authorization blocks queued work and blocks history, status and replay reads.	S-e1c64020
+R-046	non-functional	A token that expires while its request is queued yields an authentication failure before paid work; a renewed token allows a same-key retry only where the idempotency rules permit.	65	An expired queued request fails authentication with no paid call.	S-e1c64020
+R-047	non-functional	Token validity at request start is not an indefinite authorization grant.	66	Authorization is rechecked at later stages.	S-e1c64020
+R-048	non-functional	Offline authentication tests use local signing keys and a local trusted-key fixture, with no network identity discovery.	67	The auth tests pass without network access.	S-e1c64020
+R-049	non-functional	An incompatible existing gateway needs an explicit verified claim mapping, and the core principal model never changes silently.	69	Any gateway mapping is explicit and tested.	S-e1c64020
+R-050	requirement	The service implements the endpoint contract as synchronous, non-streaming HTTP/JSON with a published OpenAPI specification.	70	An OpenAPI document is published, and the endpoints conform to it.	S-e1c64020
+R-051	requirement	POST /v1/sessions creates an empty owned session with a server-generated ID and conversation version 0.	71	Returns 201 with a new ID and version 0.	S-e1c64020
+R-052	requirement	POST /v1/chat returns 200 only for a committed answer, ask_clarification or cannot_answer outcome.	72	No 200 without a committed outcome of one of the three actions.	S-e1c64020
+R-053	requirement	GET /v1/sessions/{session_id} returns the authorized metadata, locale, retrieval scope and conversation version.	73	Returns 200 with those fields to the owner.	S-e1c64020
+R-054	requirement	GET /v1/sessions/{session_id}/messages returns bounded, cursor-paginated committed messages in ascending sequence.	74	Returns 200 with a bounded page in ascending sequence and a cursor.	S-e1c64020
+R-055	requirement	GET /v1/sessions/{session_id}/requests/{request_id} returns the known request state and stored result or problem.	75	Returns 200 with the state, and 404 when the request is unknown or inaccessible.	S-e1c64020
+R-056	requirement	DELETE /v1/sessions/{session_id} purges live application content.	76	Returns 204 after the purge, and 409 if the session is busy.	S-e1c64020
+R-057	requirement	GET /health/live reports process liveness without paid dependency calls.	77	Liveness responds and makes no KB or model call.	S-e1c64020
+R-058	requirement	GET /health/ready reports whether configuration, storage, writer ownership and startup recovery permit admission.	78	Readiness fails while any of these is not satisfied.	S-e1c64020
+R-059	requirement	POST /v1/chat rejects an unknown session with 404 and never creates one implicitly.	79	Chat on an unknown session returns 404, and no session is created.	S-e1c64020
+R-060	non-functional	Session creation accepts only the allowlisted locale, metadata and retrieval fields.	80	Any other field is rejected.	S-e1c64020
+R-061	non-functional	The session-creation body takes the illustrated shape: locale, metadata (product_id, product_version) and retrieval (corpus_ids, filters).	81	The example body is accepted.	S-e1c64020
+R-062	success-criterion	The metadata and filter allowlist is product_id and product_version, each a bounded string.	82	Each value is a string of at most 128 bytes.	S-e1c64020
+R-063	success-criterion	Session creation accepts a bounded list of corpus IDs.	83	Up to 8 corpus IDs, each at most 128 bytes.	S-e1c64020
+R-064	non-functional	Empty metadata and empty filters are valid.	84	A session with empty metadata and filters is created.	S-e1c64020
+R-065	non-functional	Unknown fields in session creation are rejected.	85	An unknown field yields 400.	S-e1c64020
+R-066	non-functional	Metadata and filters are query hints, not verified user facts or permission grants.	86	Supplying a filter grants no extra retrieval permission.	S-e1c64020
+R-067	non-functional	Client retrieval preferences only narrow the server-authorized scope, and an unauthorized corpus or filter is rejected with 403 RETRIEVAL_SCOPE_FORBIDDEN.	87	An unauthorized corpus or filter returns 403 RETRIEVAL_SCOPE_FORBIDDEN.	S-e1c64020
+R-068	non-functional	Session locale and retrieval preferences are immutable in the pilot; a chat request may override only its response locale.	88	No endpoint changes a session's locale or retrieval settings.	S-e1c64020
+R-069	non-functional	The chat request body takes the illustrated shape: request_id, session_id, question and locale.	89	The example body is accepted.	S-e1c64020
+R-070	requirement	Every chat request contains non-empty request_id, session_id and question fields.	90	A missing or empty field yields 400.	S-e1c64020
+R-071	success-criterion	Request parsing enforces size limits and strict JSON and schema validation before admission.	91	32 KiB body, 8 KiB UTF-8 question, 128-byte request ID.	S-e1c64020
+R-072	non-functional	Request IDs use ASCII letters, digits, hyphen and underscore, and session IDs use the service UUID format.	92	Other characters or formats yield 400.	S-e1c64020
+R-073	non-functional	Empty or whitespace-only questions, duplicate JSON keys, trailing JSON values, unknown properties and invalid UTF-8 are invalid.	93	Each case yields 400.	S-e1c64020
+R-074	non-functional	Oversized bodies return 413, and field or schema violations return 400.	94	An oversized body returns 413, and a schema violation returns 400.	S-e1c64020
+R-075	non-functional	Lower configured limits need matching published schemas.	95	The OpenAPI schema reflects any lowered limit.	S-e1c64020
+R-076	success-criterion	History pagination is bounded, uses session-bound opaque cursors and is stable under concurrent append.	96	Default page 50, max page 100; ascending order is stable under concurrent append.	S-e1c64020
+R-077	success-criterion	API responses expose only application-owned fields and bounded chat bodies, with no raw upstream errors, credentials or prompts.	97	Chat response body at most 64 KiB, with no leaked upstream or internal content.	S-e1c64020
+R-078	non-functional	A committed response conforms to the normalized envelope and the outcome table.	98	Every committed response validates against the envelope schema.	S-e1c64020
+R-079	non-functional	The response envelope carries request_id, session_id, session_version, action, reason_code, locale, answer, sources and message_refs.	99	The example envelope validates.	S-e1c64020
+R-080	non-functional	answer/grounded has a non-empty answer, at least one valid KB citation and sources equal to the cited KB subset.	100	Each grounded answer cites at least one source, and its sources equal the cited set.	S-e1c64020
+R-081	non-functional	answer/conversation_meta answers about the transcript with sources=[] and supporting message sequences in message_refs.	101	sources is empty, and message_refs lists authorized sequences.	S-e1c64020
+R-082	non-functional	answer/smalltalk is a bounded, localized acknowledgement with both reference arrays empty.	102	Both arrays are empty.	S-e1c64020
+R-083	non-functional	ask_clarification outcomes carry a non-empty localized clarification with empty reference arrays and no unsupported factual answer.	103	The clarification text is non-empty, and both arrays are empty.	S-e1c64020
+R-084	non-functional	cannot_answer for no_evidence, conflicting, insufficient or uncertain carries a non-empty localized explanation with empty reference arrays.	104	The explanation is non-empty, and both arrays are empty.	S-e1c64020
+R-085	non-functional	cannot_answer for out_of_scope, history_unavailable or provider_refusal carries a non-empty controlled explanation with empty reference arrays.	105	The explanation is non-empty, and both arrays are empty.	S-e1c64020
+R-086	non-functional	All three actions are successful outcomes and increment the conversation version.	106	Each action commits and increments the version by 1.	S-e1c64020
+R-087	non-functional	Infrastructure errors neither count as successful outcomes nor increment the version.	107	After an infrastructure error, the version is unchanged.	S-e1c64020
+R-088	non-functional	Source titles, URIs and revisions are optional when the KB does not supply them, and absent values are never invented.	108	Missing KB fields stay absent in the sources.	S-e1c64020
+R-089	non-functional	message_refs refers to transcript sequence numbers in the same session only.	109	No message_ref points to another session.	S-e1c64020
+R-090	requirement	The response locale resolves as request override, then session locale, then the default tr-TR, with tr-TR and en-US supported.	110	Each precedence level is honored in a test.	S-e1c64020
+R-091	non-functional	Response language follows the explicit locale contract, not a language detector.	111	The output language matches the resolved locale.	S-e1c64020
+R-092	non-functional	A Turkish request with tr-TR stays Turkish when the evidence is English.	112	A tr-TR request over English evidence gets a Turkish response.	S-e1c64020
+R-093	non-functional	Unsupported locales return 400.	113	An unsupported locale yields 400.	S-e1c64020
+R-094	non-functional	Source titles need not be translated.	114	Titles are passed through untranslated.	S-e1c64020
+R-095	requirement	The store retains sessions, committed messages, request journals, provider-call journals, summary checkpoints and provenance enough to enforce the data contract.	115	The schema holds every entity in the data contract.	S-e1c64020
+R-096	requirement	A session records ID, owner, locale, retrieval settings, authorization fingerprint, conversation version, lifecycle state and retention timestamps.	116	The session record holds each listed field.	S-e1c64020
+R-097	requirement	A committed message records session ID, increasing sequence, role, text, logical request, references and creation time.	117	The message record holds each listed field, with strictly increasing sequence.	S-e1c64020
+R-098	requirement	A request journal records logical key, fingerprint version and hash, admitted and execution versions, attempt sequence, owner epoch, state and saved result or problem.	118	The request-journal record holds each listed field.	S-e1c64020
+R-099	requirement	A provider-call journal records a unique call ID, stage, input hash, model and config versions, dispatch intent, outcome, reusable result and usage state.	119	The provider-call record holds each listed field, with a unique call ID.	S-e1c64020
+R-100	requirement	A summary checkpoint records session ID, covered_seq, optional partial cursor, summary_version, bounded summary, source hash, procedure versions and writer epoch.	120	The checkpoint record holds each listed field.	S-e1c64020
+R-101	requirement	A reserved ID registry keeps non-reusable session-ID digests and their lifecycle status, separate from conversation content.	121	A deleted session ID cannot be reused, and the registry holds no content.	S-e1c64020
+R-102	requirement	A committed turn remains available after the service stops and restarts against the same store.	122	After a restart, the committed turns are readable.	S-e1c64020
+R-103	requirement	Finalization atomically writes the user/assistant pair, source references, new version and completed idempotency result.	123	A failure injected mid-finalization leaves none or all of them written.	S-e1c64020
+R-104	requirement	Finalization checks expected version, logical-request uniqueness, live session status and current writer epoch in the same transaction.	124	Each failed check aborts the commit.	S-e1c64020
+R-105	non-functional	No session or database transaction lock is held across a KB or model network call.	125	No transaction is open during an outbound call.	S-e1c64020
+R-106	requirement	A lost database-commit acknowledgement triggers authoritative result reconciliation before any inference is repeated.	126	A simulated lost acknowledgement leads to reconciliation with no repeated paid call.	S-e1c64020
+R-107	non-functional	A committed result wins over an expired HTTP connection.	127	A commit after the client disconnect stays committed and replayable.	S-e1c64020
+R-108	non-functional	An unconfirmed commit is not treated as proof of rollback.	128	An unconfirmed commit is reconciled, not assumed rolled back.	S-e1c64020
+R-109	non-functional	While the store is unreachable, status stays explicitly unavailable or pending reconciliation, never an invented result.	129	During a store outage, status reports unavailable or pending.	S-e1c64020
+R-110	non-functional	Original transcript messages stay accessible independently of summaries until deletion or retention removes them.	130	Messages remain readable after summarization.	S-e1c64020
+R-111	requirement	The PostgreSQL implementation passes real-store conformance, migration, restart, atomicity and backup and restore tests.	131	Each of those suites passes against real PostgreSQL.	S-e1c64020
+R-112	requirement	A valid summary checkpoint commits independently of the current chat turn without incrementing the conversation version.	132	A checkpoint commit leaves the version unchanged.	S-e1c64020
+R-113	non-functional	Checkpoint updates use coverage and version compare-and-swap plus writer and lifecycle fencing.	133	A checkpoint never covers uncommitted turns and never survives deletion.	S-e1c64020
+R-114	non-functional	Checkpoints are derived data; they do not replace transcript authority or prove the current message was answered.	135	The transcript, not the checkpoint, is authoritative.	S-e1c64020
+R-115	requirement	The idempotency key is (tenant_id, subject, session_id, request_id), with authentication and ownership checks before lookup or replay.	136	The same request_id under a different owner is a distinct key, and unauthenticated replay is refused.	S-e1c64020
+R-116	requirement	A repeated key with a different semantic-input fingerprint returns 409 IDEMPOTENCY_CONFLICT and leaves the existing request unchanged.	137	A changed question under the same key returns 409, and the stored request is unchanged.	S-e1c64020
+R-117	non-functional	The fingerprint covers the exact accepted question, resolved locale and immutable retrieval and session configuration identity.	138	Changing any of these changes the fingerprint.	S-e1c64020
+R-118	non-functional	The fingerprint excludes transport timestamps, trace IDs and renewed token bytes.	139	Changing any of these leaves the fingerprint unchanged.	S-e1c64020
+R-119	non-functional	Security-policy changes are handled by authorization checks, not by the fingerprint.	140	A role change does not cause IDEMPOTENCY_CONFLICT.	S-e1c64020
+R-120	requirement	The service claims a logical request atomically before execution and resolves concurrent duplicates without a check-then-insert race.	141	Concurrent duplicates produce exactly one execution.	S-e1c64020
+R-121	non-functional	Pre-admission validation and overload rejections create no durable in-progress request or completed turn.	142	After a 400 or 429, no request or turn record exists.	S-e1c64020
+R-122	non-functional	Completed request keys and response bodies stay replayable for the retained session lifetime, subject to authorization and deletion.	143	A completed key replays its saved body while the session is retained.	S-e1c64020
+R-123	non-functional	A first attempt may wait behind earlier same-session work and binds its execution version to the state it actually reads.	144	The execution version equals the version read at start.	S-e1c64020
+R-124	non-functional	The admission-time version is not an execution precondition for a first attempt.	145	A first attempt that waited still executes after the version changes.	S-e1c64020
+R-125	non-functional	A retryable request re-enters the queue with a new admission sequence and passes its retry-version guard when execution starts.	147	The guard is checked at start, not at re-enqueue.	S-e1c64020
+R-126	non-functional	The retry-version guard equals the execution version if execution began, or the admission-time version otherwise.	148	The guard value matches the rule in both cases.	S-e1c64020
+R-127	requirement	If the guard differs from the current version at retry execution, the service returns and retains 409 STATE_CONFLICT without a paid call.	149	A retry after another commit returns 409 STATE_CONFLICT, with no paid call.	S-e1c64020
+R-128	non-functional	An earlier attempt cannot silently retry against a newer context after a later turn commits.	150	An A1 retry after A2 commits is refused.	S-e1c64020
+R-129	requirement	Request status and same-key resubmission implement the complete state table.	152	Each state's resubmission behavior is tested.	S-e1c64020
+R-130	non-functional	A queued request resubmitted returns 409 REQUEST_IN_PROGRESS with a bounded Retry-After and no duplicate waiter.	153	One waiter only; 409 with Retry-After.	S-e1c64020
+R-131	non-functional	A running request resubmitted returns 409 REQUEST_IN_PROGRESS without a second execution.	154	One execution only.	S-e1c64020
+R-132	non-functional	A committing request resubmitted returns 409 REQUEST_IN_PROGRESS with status or reconciliation guidance.	155	409 with guidance.	S-e1c64020
+R-133	non-functional	A completed request resubmitted returns 200 with the saved response and Idempotent-Replayed: true, with no new external calls.	156	200 replay, header set, zero outbound calls.	S-e1c64020
+R-134	non-functional	A retryable request resubmitted is re-admitted under the same key or rejected for overload, auth or version conflict, never duplicating a committed turn.	157	No duplicate turn.	S-e1c64020
+R-135	non-functional	An uncertain request resubmitted returns 409 OUTCOME_UNCERTAIN with no automatic new attempt.	158	409 OUTCOME_UNCERTAIN, no new attempt.	S-e1c64020
+R-136	non-functional	A failed_final request resubmitted replays its saved status or problem with Idempotent-Replayed: true.	159	The saved problem is replayed, with the header set.	S-e1c64020
+R-137	requirement	GET .../requests/{request_id} returns a status envelope with state, attempt, timestamps, result or problem and next_action.	160	The envelope has those fields, with next_action one of wait, retry_same_id, use_new_id or none.	S-e1c64020
+R-138	non-functional	A disconnect, queue deadline or shutdown before any unresolved chargeable dispatch produces retryable, not a permanent cancelled state.	162	Such a request ends in retryable.	S-e1c64020
+R-139	requirement	A cancellation or deadline after a possibly accepted call with no recoverable result produces uncertain once reconciliation fails.	163	Such a request ends in uncertain.	S-e1c64020
+R-140	non-functional	A paid call with a durably saved usable result is not uncertain merely because money was spent.	164	That request is not marked uncertain.	S-e1c64020
+R-141	non-functional	A read-only KB may be billable; its configured effect and billing class decides whether an unanswered dispatch is uncertain.	166	A KB configured as billable leads to uncertain on an unanswered dispatch.	S-e1c64020
+R-142	non-functional	Unknown billing semantics are treated conservatively.	167	An unknown billing class is treated as chargeable.	S-e1c64020
+R-143	requirement	Before each potentially chargeable dispatch, the service durably records a unique call ID, stage and input identity, writer epoch and dispatch_intent marker.	168	A marker row exists before every chargeable call.	S-e1c64020
+R-144	non-functional	The service does not send a call when its dispatch marker cannot be written or writer ownership cannot be established.	169	With the marker write failing, no call is sent.	S-e1c64020
+R-145	non-functional	A dispatch marker means "may have been sent," not "definitely received."	170	Marked calls without an outcome are treated as possibly sent.	S-e1c64020
+R-146	requirement	Each provider result is journaled as a known success, a verified rejection, a known unusable result or an unresolved outcome before any retry decision.	172	Every call has one of the four outcomes journaled before a retry.	S-e1c64020
+R-147	non-functional	Saved stage outputs are reused only when input, model and policy, evidence snapshot, authorization and version identities all match.	173	A mismatch in any identity prevents reuse.	S-e1c64020
+R-148	non-functional	A metadata-only log of a successful call is not a reusable result.	174	A call without a saved output is not reused.	S-e1c64020
+R-149	non-functional	Reissuing a successful paid call whose result was not saved is not classified as a free retry.	175	Such a reissue is journaled as a possible duplicate charge.	S-e1c64020
+R-150	non-functional	Known unusable output is a final protocol or generation error, not an unknown outcome.	176	Unusable output yields failed_final, not uncertain.	S-e1c64020
+R-151	non-functional	Application and SDK retry layers share one bounded retry policy so nested retries cannot multiply paid requests.	177	Total paid attempts never exceed the single policy bound.	S-e1c64020
+R-152	success-criterion	max_uncertain_model_retries accepts only 0 or 1 and defaults to 0.	178	Allowed values {0,1}; default 0.	S-e1c64020
+R-153	non-functional	An opted-in uncertain-model retry happens only within the connected original attempt, with unchanged input, valid ownership, enough budget and a journaled possible duplicate charge.	179	A retry outside any of these conditions is refused.	S-e1c64020
+R-154	non-functional	Cancellation, restart, a changed model or policy and a new HTTP resubmission never authorize the optional uncertain retry.	180	Each of these cases yields no retry.	S-e1c64020
+R-155	non-functional	The optional retry is not automatic provider failover.	181	The retry uses the same provider.	S-e1c64020
+R-156	non-functional	Provider idempotency or reconciliation is used only where documented; unsupported TypeSafe behavior is never assumed.	182	There is no reliance on undocumented Jev idempotency.	S-e1c64020
+R-157	requirement	Request state transitions are constrained to queued, running, committing, completed, with exits to retryable, uncertain or failed_final and guarded retryable-to-queued.	183	Any other transition is rejected.	S-e1c64020
+R-158	non-functional	Commit reconciliation resolves committing to completed, safe retryable or uncertain according to stored evidence.	184	Each resolution follows the evidence.	S-e1c64020
+R-159	non-functional	A known aborted commit with a saved valid response can be retried without regeneration.	185	The retry commits the saved response with no model call.	S-e1c64020
+R-160	non-functional	completed is immutable, and failed_final requires a new request ID.	186	A completed record never changes; a failed_final key is never re-executed.	S-e1c64020
+R-161	non-functional	Clients do not re-enqueue uncertain under the same key.	187	A same-key resubmission of uncertain is refused.	S-e1c64020
+R-162	non-functional	Late reconciliation may find a committed result or recover stage data, which becomes guarded retryable only if the original version still matches.	188	Recovered data with a stale version is not made retryable.	S-e1c64020
+R-163	non-functional	Reconciliation cannot append an old turn after a later version committed.	189	No stale turn is appended.	S-e1c64020
+R-164	non-functional	Startup recovery inspects abandoned records only after exclusive writer ownership is acquired and never replays the old in-memory queue.	190	Recovery waits for the lock and performs no queue replay.	S-e1c64020
+R-165	non-functional	Recovery resolves committed records first, marks never-dispatched work retryable and unreconciled dispatches uncertain before sessions accept new work.	191	After recovery, every abandoned record has one of these states before admission.	S-e1c64020
+R-166	non-functional	After a transport error, clients inspect request status, wait on active states, use saved results, retry the same ID if retryable and use a new ID only after accepting the consequences.	192	The documented client recovery flow matches the next_action values.	S-e1c64020
+R-167	non-functional	A status 404 for the same authorized live session means no claim is known and permits resubmission with the original ID.	193	A resubmission after the 404 is accepted.	S-e1c64020
+R-168	non-functional	A temporary 503 does not mean the request is absent.	194	A 503 status is not reported as unknown.	S-e1c64020
+R-169	non-functional	Cancellation before finalization starts no detached turn commit; recoverable outputs allow only a guarded client retry.	195	After cancellation, no background commit occurs.	S-e1c64020
+R-170	non-functional	At most one durable turn per logical key is guaranteed; exactly one provider charge is not promised.	196	No key ever has two turns.	S-e1c64020
+R-171	requirement	Before recovery or mutations, each process acquires a service-scoped PostgreSQL session advisory lock on a dedicated connection.	197	Recovery and admission start only after the lock is held.	S-e1c64020
+R-172	non-functional	A process that cannot acquire the lock stays unready and never recovers, admits or dispatches.	198	A second process stays unready and does no work.	S-e1c64020
+R-173	non-functional	The advisory lock is not a TTL lease.	200	Ownership does not expire on a timer.	S-e1c64020
+R-174	non-functional	The lock connection is dedicated, not borrowed from the pool per operation.	201	The lock is held on a single dedicated connection.	S-e1c64020
+R-175	requirement	After obtaining the lock, the process allocates a monotonically increasing instance_epoch and publishes it in a durable writer-control row before recovery.	202	Each start gets a higher epoch, recorded before recovery.	S-e1c64020
+R-176	requirement	Every mutation, marker write and final commit enforces the current epoch transactionally, without a check-then-write race.	203	A stale-epoch write is rejected.	S-e1c64020
+R-177	non-functional	Short transactions complete before takeover or are rejected as stale, never passing a detached epoch check.	205	No stale-epoch transaction commits after takeover.	S-e1c64020
+R-178	requirement	Request claims and stage journals carry their owning epoch, and recovery leaves records of a verified current owner untouched.	206	Recovery never alters current-owner records.	S-e1c64020
+R-179	requirement	Loss of the ownership connection fails readiness, stops admission and dispatch and cancels local work without reconnecting as the same owner.	207	After a lock-connection drop, readiness fails and no new call is sent.	S-e1c64020
+R-180	requirement	A replacement process passes the second-process and stale-writer acceptance tests before single-writer safety is claimed.	208	Both acceptance tests pass.	S-e1c64020
+R-181	non-functional	Writer fencing cannot retract a call already accepted by a provider or fence an API without fencing support.	210	No such guarantee is claimed.	S-e1c64020
+R-182	non-functional	Calls in flight during ownership loss stay under the uncertainty boundary; no distributed exactly-once claim is made.	211	Such calls are marked uncertain if not reconciled.	S-e1c64020
+R-183	success-criterion	With non-throttling dependencies, the scheduler runs 100 distinct sessions concurrently and never a 101st active turn.	212	Exactly 100 concurrently active; 101st never active.	S-e1c64020
+R-184	non-functional	Same-session FIFO uses the server admission sequence, not client clocks or send order.	213	Order follows the admission sequence.	S-e1c64020
+R-185	requirement	Only the oldest waiting request of an idle session whose principal has quota is eligible for an active slot.	214	No other request takes a slot.	S-e1c64020
+R-186	requirement	Eligible sessions are selected FIFO, and a session's next request goes to the tail after its preceding turn resolves.	215	Session selection order is FIFO.	S-e1c64020
+R-187	non-functional	Waiting work for a busy session or exhausted principal does not reserve global capacity or block other eligible sessions.	216	Other sessions proceed while such work waits.	S-e1c64020
+R-188	success-criterion	Initial admission limits are set.	217	100 active globally, 100 waiting globally, 2 waiting per session, 10 active and 10 waiting per principal.	S-e1c64020
+R-189	non-functional	All pre-execution waiting, including same-session waits, counts toward queue capacity and queue time.	218	Same-session waiters count against the caps and the timer.	S-e1c64020
+R-190	non-functional	Principal quotas stop one subject from consuming the service through many sessions; tenant-wide fairness is not guaranteed.	219	One principal cannot exceed 10 active turns.	S-e1c64020
+R-191	requirement	Admission enforces global, session and principal limits atomically with bounded temporary reservations and durable claiming.	220	Concurrent admissions never exceed any limit.	S-e1c64020
+R-192	success-criterion	Session creation is rate-limited and capped per principal.	221	30 creations/min, burst 10; at most 1,000 retained sessions per principal.	S-e1c64020
+R-193	requirement	Admission rejects with 429 and Retry-After when capacity is full or the estimated start delay exceeds the remaining budget.	222	429 with Retry-After in both cases.	S-e1c64020
+R-194	non-functional	The start-delay estimate is versioned and covers active residual work, earlier eligible work, same-session predecessors, quotas and observed throttling.	223	The estimator accounts for each listed input.	S-e1c64020
+R-195	success-criterion	Cold-start estimated turn duration is conservative and updated from observed durations.	224	Initial estimate 30 s.	S-e1c64020
+R-196	success-criterion	The 100-waiter cap leaves headroom against the 60-second wait budget under a 100-worker, 30-second-turn estimate.	225	About 200 starts possible in 60 s versus 100 waiters.	S-e1c64020
+R-197	success-criterion	Queue time, including same-session waits, is capped independently of the total attempt deadline.	227	Queue time max 60 s; total attempt deadline 180 s.	S-e1c64020
+R-198	requirement	The scheduler removes cancelled or expired waiters without downstream work or leaked reservations.	228	After expiry, no outbound call is made and the reservation counts return to their prior values.	S-e1c64020
+R-199	success-criterion	A start-budget guard refuses to start a turn with too little processing budget left after reserving finalization time.	229	Start refused when less than 60 s of processing budget remains.	S-e1c64020
+R-200	non-functional	The per-session cap of two is an upper bound, not a promise to accept both when the predicted wait is too long.	231	A second waiter may be refused with 429.	S-e1c64020
+R-201	requirement	Admission handlers, goroutines, queue records and idle coordination objects are bounded and cleaned up without busy-waiting or ordering races.	232	After load and idle, goroutine and record counts return to baseline, with no busy-wait loop.	S-e1c64020
+R-202	requirement	The domain path runs: authenticate and validate, claim and schedule, bind version, prepare history, classify intent, retrieve evidence, assess evidence, generate when allowed, validate, commit atomically.	233	A traced domain turn runs these stages in this order.	S-e1c64020
+R-203	non-functional	All inference shares the journaling, budget and cancellation rules.	235	Every model call is journaled, budgeted and cancellable.	S-e1c64020
+R-204	requirement	The KB capability accepts the original question, resolved query, bounded context, allowed corpus and filter scope, locale and optional document hints.	236	The KnowledgeQuery passed to the adapter carries each field.	S-e1c64020
+R-205	non-functional	A follow-up query keeps the relevant referent from committed context, not just an isolated pronoun question.	237	A pronoun follow-up's resolved query names the earlier referent.	S-e1c64020
+R-206	non-functional	The default query preparer is deterministic, combining the question with relevant product and session facts and recent user references.	238	The same inputs give the same resolved query.	S-e1c64020
+R-207	non-functional	Previously cited document IDs are only boost hints, never mandatory filters.	239	Newer evidence outside the cited documents can still be retrieved.	S-e1c64020
+R-208	non-functional	Extra LLM query rewriting is optional and explicitly charged and journaled.	240	When enabled, each rewrite call has a usage record.	S-e1c64020
+R-209	requirement	Query preparation preserves the user's question and distinguishes original text from resolved or translated query.	241	The query has separate question and resolved_query fields, and the question is unchanged.	S-e1c64020
+R-210	requirement	The KB adapter normalizes a bounded result into evidence items with text, document ID, chunk ID and available revision, title and reference metadata.	242	The normalized items carry those fields.	S-e1c64020
+R-211	success-criterion	Retrieval caps the evidence count and enforces byte and token budgets before inference.	243	At most 8 evidence items; configured byte and token budgets enforced.	S-e1c64020
+R-212	requirement	The KB adapter distinguishes an empty success, a transport or timeout failure, an access failure and malformed or oversized evidence.	244	Each case maps to a distinct result.	S-e1c64020
+R-213	non-functional	KB failure never silently activates a general-knowledge answer path.	245	A KB failure yields an error, with no generation call.	S-e1c64020
+R-214	non-functional	The KB wire protocol, auth, authorization propagation, filters, versioning, limits and error mapping are approved and frozen before their tests count as Gate A evidence.	246	A frozen, approved KB contract exists before Gate A.	S-e1c64020
+R-215	non-functional	The application-owned KnowledgeQuery and KnowledgeResult shape is the mapping target, not a claim about the existing KB's fields or URL.	247	The adapter maps between the KB wire format and these types.	S-e1c64020
+R-216	non-functional	KnowledgeQuery and KnowledgeResult have the stated fields.	248	The types define exactly the listed fields.	S-e1c64020
+R-217	non-functional	The approved wire contract supplies the actual HTTP method, path, credentials and field mapping.	249	The adapter's configuration comes from the approved contract.	S-e1c64020
+R-218	non-functional	No fabricated /query endpoint substitutes for the approved contract.	250	The adapter has no guessed endpoint.	S-e1c64020
+R-219	non-functional	If the KB cannot enforce the access scope, a verified integration boundary is needed before real data is used; model filtering is not authorization.	251	Real data is used only behind an enforcing boundary.	S-e1c64020
+R-220	non-functional	User content, KB passages and summaries stay untrusted and cannot change credentials, endpoints, roles, policy, actions or system instructions.	252	Prompt-injection tests change none of these.	S-e1c64020
+R-221	requirement	Conversation facts explain intent without replacing current KB evidence for fresh domain assertions.	253	A domain answer cites KB evidence, not the transcript.	S-e1c64020
+R-222	non-functional	The pilot never fetches user-supplied URLs or executes model-selected tools.	254	A URL in the question is never fetched, and no tool is called.	S-e1c64020
+R-223	non-functional	The first Decision Model adapter implements TypeSafe AI Jev through the pinned, tested POST /v1/systemone contract.	255	The adapter calls /v1/systemone and passes the contract tests.	S-e1c64020
+R-224	requirement	Every decision input includes the bounded conversational information needed to interpret the question, not only the last sentence.	256	The DecisionState includes the summary and recent turns.	S-e1c64020
+R-225	non-functional	DecisionState has the stated fields: question, resolved query, locale, conversation, evidence, application scope and policy version.	257	The type defines those fields.	S-e1c64020
+R-226	non-functional	Evidence is not_requested for intent classification and success (possibly empty) for post-retrieval assessment.	258	The retrieval_status value matches the stage.	S-e1c64020
+R-227	non-functional	Credentials, raw identity tokens and unnecessary personal identifiers are never model input.	259	Captured model inputs contain none of them.	S-e1c64020
+R-228	non-functional	The resolved query used for retrieval is included in the evidence-assessment state.	260	The assessment input's resolved_query equals the retrieval query.	S-e1c64020
+R-229	requirement	The service classifies intent as domain, conversation_meta, smalltalk or out_of_scope before domain retrieval.	261	The classification precedes any KB call.	S-e1c64020
+R-230	requirement	Ambiguous intent produces ask_clarification / intent_ambiguous without guessing a domain workflow.	262	An ambiguous classification commits intent_ambiguous with no KB call.	S-e1c64020
+R-231	success-criterion	The default intent-confidence policy accepts a classification only when it is clear enough.	264	Top probability >= 0.70 and margin over the second >= 0.20.	S-e1c64020
+R-232	requirement	A domain request with successful retrieval gets three independent assessments: needs_clarification, evidence_sufficient and evidence_conflicting.	266	All three judgments are recorded per domain turn.	S-e1c64020
+R-233	non-functional	Jev uses one batched evaluation of three atomic Noul questions over the complete shared state.	267	One Jev call returns all three judgments.	S-e1c64020
+R-234	requirement	The assessment contract distinguishes yes, no and uncertain for each judgment and keeps raw probability separately.	270	Each judgment has a verdict and its raw probability.	S-e1c64020
+R-235	success-criterion	needs_clarification and evidence_conflicting map probabilities to verdicts by fixed thresholds.	271	p <= 0.20 no; p >= 0.80 yes; otherwise uncertain.	S-e1c64020
+R-236	success-criterion	evidence_sufficient maps probabilities to verdicts by fixed thresholds.	272	p <= 0.20 no; p >= 0.85 yes; otherwise uncertain.	S-e1c64020
+R-237	non-functional	Threshold boundaries are inclusive.	273	p = 0.20 maps to no, and p = 0.80 (0.85) maps to yes.	S-e1c64020
+R-238	non-functional	Thresholds, question text, normalization rules and action precedence are versioned together in a provider and model-specific policy profile.	275	A single policy version identifies all of them.	S-e1c64020
+R-239	requirement	The domain workflow applies the first-match policy table after authentication, budget and reconciliation checks.	276	Each policy row is exercised, and the first match wins.	S-e1c64020
+R-240	non-functional	A KB transport, access or protocol error yields no turn and a mapped 502, 503 or 504, with retry classification by side-effect evidence.	277	No turn is committed, and the status is mapped.	S-e1c64020
+R-241	non-functional	A decision transport error, invalid or missing assessment or unsupported result yields no turn and a mapped error or 502 DECISION_INVALID, with no generation fallback.	278	No turn and no generation call.	S-e1c64020
+R-242	non-functional	needs_clarification=yes commits ask_clarification / needs_clarification.	279	That outcome is committed.	S-e1c64020
+R-243	non-functional	needs_clarification=uncertain commits ask_clarification / clarification_uncertain.	280	That outcome is committed.	S-e1c64020
+R-244	non-functional	Successful retrieval with zero items commits cannot_answer / no_evidence.	281	That outcome is committed.	S-e1c64020
+R-245	non-functional	evidence_conflicting=yes commits cannot_answer / conflicting.	282	That outcome is committed.	S-e1c64020
+R-246	non-functional	evidence_conflicting=uncertain commits cannot_answer / uncertain.	283	That outcome is committed.	S-e1c64020
+R-247	non-functional	evidence_sufficient=no commits cannot_answer / insufficient.	284	That outcome is committed.	S-e1c64020
+R-248	non-functional	evidence_sufficient=uncertain commits cannot_answer / uncertain.	285	That outcome is committed.	S-e1c64020
+R-249	non-functional	Clarification no, conflict no, sufficiency yes and non-empty evidence lead to generating and validating answer / grounded.	286	Only this combination calls generation.	S-e1c64020
+R-250	non-functional	Contradictory assessments resolve uniquely: clarification precedes missing or conflicting evidence, and conflict precedes sufficiency.	287	Contradictory inputs yield the higher-precedence outcome.	S-e1c64020
+R-251	non-functional	Uncertain is derived from the normalized assessment, not asked as a fourth class.	288	No fourth question is sent.	S-e1c64020
+R-252	non-functional	Evidence explanations do not expand into presenting disputed factual claims.	289	A conflicting outcome does not present the disputed claims as answers.	S-e1c64020
+R-253	non-functional	smalltalk gets a bounded localized response with no KB call or unrestricted domain generation.	290	A smalltalk turn makes no KB call.	S-e1c64020
+R-254	non-functional	conversation_meta answers only from authorized transcript material, labelled as conversation history.	291	Meta answers have empty sources and only message_refs.	S-e1c64020
+R-255	non-functional	Common meta cases, such as the first user question, use deterministic transcript selection.	292	"What was my first question" returns sequence 1 without a model.	S-e1c64020
+R-256	non-functional	A bounded LLM may phrase a meta answer when needed.	293	Any such LLM call is bounded and journaled.	S-e1c64020
+R-257	non-functional	If the required history cannot be retrieved within bounds, the outcome is cannot_answer / history_unavailable.	294	That outcome is returned, with no fabricated history.	S-e1c64020
+R-258	non-functional	out_of_scope yields localized cannot_answer / out_of_scope with no KB retrieval or general-knowledge fallback.	295	No KB or generation call.	S-e1c64020
+R-259	requirement	The Jev adapter validates answer names, primitive types, enum membership, finite 0..1 probabilities and distribution consistency.	296	Malformed responses are rejected.	S-e1c64020
+R-260	non-functional	Missing or malformed decision output is DECISION_INVALID, not actionable uncertainty.	297	Malformed output yields 502 DECISION_INVALID.	S-e1c64020
+R-261	non-functional	A Noul without a separate confidence field is valid.	298	Such a response is accepted.	S-e1c64020
+R-262	non-functional	Any derived confidence metric carries its derivation and version label and is never presented as a provider-reported confidence.	300	Derived metrics are labelled.	S-e1c64020
+R-263	requirement	A live decision profile identifies an approved concrete returned model ID and rejects unapproved model drift before acting.	301	A drifted model ID causes rejection before the policy is applied.	S-e1c64020
+R-264	non-functional	Where only a moving alias exists, an approved expected returned-ID set and a recorded limitation are required.	304	The profile lists approved IDs and the limitation.	S-e1c64020
+R-265	non-functional	Model drift yields 503 MODEL_PROFILE_MISMATCH, an operational alert and no successful turn.	305	Drift returns 503, raises an alert and commits no turn.	S-e1c64020
+R-266	requirement	The Jev capability profile declares a verified or conservative input cap, its provenance and unknown operational behaviors.	306	The profile documents the cap, its source and the unknowns.	S-e1c64020
+R-267	non-functional	An unanswered dispatch is uncertain unless evidence shows rejection or a recoverable result; a timeout does not prove delivery.	309	An unanswered Jev call ends uncertain.	S-e1c64020
+R-268	requirement	A second deterministic decision implementation passes the core conformance tests without a second paid provider.	310	The deterministic implementation passes the suite.	S-e1c64020
+R-269	non-functional	Generation and summarization use application-owned input and output contracts independent of provider SDKs.	311	The core imports no LLM SDK.	S-e1c64020
+R-270	requirement	The pilot implements Anthropic Messages and OpenAI-compatible Chat Completions as two distinct adapters with a shared conformance suite.	312	Both adapters pass the shared suite.	S-e1c64020
+R-271	non-functional	Running the OpenAI-compatible model server is outside the product scope.	316	The repository contains no model server.	S-e1c64020
+R-272	requirement	Each (provider, endpoint, API version, model) profile declares limits, tokenizer or estimator, finish and refusal mapping, structured-output method, caching controls and usage semantics.	317	Profile validation requires every field.	S-e1c64020
+R-273	requirement	Unsupported mandatory capabilities fail configuration and are never silently ignored.	318	Startup fails on a missing mandatory capability.	S-e1c64020
+R-274	non-functional	The generator receives the exact evidence set and policy chosen by the orchestrator and cannot override the chosen action.	319	The generator input equals the selected evidence, and the action is unchanged.	S-e1c64020
+R-275	requirement	The normalized generation result includes non-empty bounded text, referenced citation IDs, completion status and reported-or-unknown usage.	320	The result type carries each field.	S-e1c64020
+R-276	non-functional	Free-form model text never supplies database operations, authorization decisions or arbitrary tools.	322	Model output triggers none of these.	S-e1c64020
+R-277	non-functional	Hidden chain-of-thought is never requested or persisted as conversation content.	323	No reasoning content is stored.	S-e1c64020
+R-278	non-functional	A grounded answer references only evidence supplied to that call and cites at least one item before commit.	324	An answer without a valid citation is not committed.	S-e1c64020
+R-279	non-functional	An invalid, fabricated or missing required reference fails the turn with 502 CITATION_INVALID.	325	A fabricated citation returns 502 CITATION_INVALID.	S-e1c64020
+R-280	non-functional	Source membership validation is not semantic entailment.	326	Documentation states the limitation.	S-e1c64020
+R-281	requirement	sources holds exactly the deduplicated cited subset in first-citation order.	329	sources equals the cited IDs, deduplicated and in order.	S-e1c64020
+R-282	non-functional	A length-truncated answer fails with 502 GENERATION_TRUNCATED and is never committed.	330	Truncation returns 502, and no turn is committed.	S-e1c64020
+R-283	non-functional	No hidden regeneration or continuation request is made by default.	331	Truncation triggers no second call.	S-e1c64020
+R-284	non-functional	A known refusal is distinct from a transport or protocol failure.	332	A refusal maps to provider_refusal, not 5xx.	S-e1c64020
+R-285	non-functional	A valid provider refusal produces cannot_answer / provider_refusal without a second provider or bypass attempt.	333	One call only, with a 200 provider_refusal outcome.	S-e1c64020
+R-286	requirement	A provider or model change rebuilds context from application state and revalidates limits without the previous provider's handles.	334	After a switch, the turn succeeds with no reuse of old handles.	S-e1c64020
+R-287	requirement	Generation context keeps the order: stable instructions, bounded summary, complete turns since the summary, current evidence, current question.	335	A golden test shows the ordered prompt structure.	S-e1c64020
+R-288	non-functional	The unsummarized tail is append-only between checkpoints, not a sliding last-K window.	336	The prefix is unchanged between consecutive turns without a new checkpoint.	S-e1c64020
+R-289	non-functional	Older content is compacted when thresholds are reached.	337	Compaction occurs at the threshold.	S-e1c64020
+R-290	non-functional	Selective evidence and the new question come after reusable conversation segments.	338	Evidence and the question are at the prompt end.	S-e1c64020
+R-291	non-functional	Stable formatting never justifies irrelevant text or exceeding a model window.	339	The prompt fits the window.	S-e1c64020
+R-292	requirement	Each decision, summary and generation call fits its role's independently configured input, output and byte budgets before dispatch.	340	Over-budget calls are not dispatched.	S-e1c64020
+R-293	success-criterion	Every call satisfies the window inequality.	341	estimated_input + reserved_output + safety_margin <= usable_window.	S-e1c64020
+R-294	non-functional	For a byte-limited API, the byte cap is enforced too.	342	Over-byte calls are refused.	S-e1c64020
+R-295	non-functional	Cached tokens count toward the context window.	343	The window check includes cached tokens.	S-e1c64020
+R-296	non-functional	Jev's input cap is not inferred from the generation model.	344	Jev has its own configured cap.	S-e1c64020
+R-297	non-functional	Summarization input is not assumed to fit because generation context does.	345	Summarizer calls are checked against their own budget.	S-e1c64020
+R-298	non-functional	Startup validation checks that the maximum question, instructions, minimum context, output reserve and margin fit every role profile.	346	An infeasible profile fails startup.	S-e1c64020
+R-299	non-functional	The service never silently truncates the current question or mandatory instructions to fit a call.	347	An oversize input yields an error, not truncation.	S-e1c64020
+R-300	requirement	When no tokenizer exists, the estimator declares a conservative method, byte guard and safety margin validated for the profile.	348	The profile declares each, and validation passes.	S-e1c64020
+R-301	success-criterion	The default safety reserve is the larger of a percentage of the usable window or a token floor.	349	max(10% of usable window, 256 tokens).	S-e1c64020
+R-302	non-functional	A missing model limit is a configuration error, not permission for unbounded input.	350	Startup fails without a limit.	S-e1c64020
+R-303	non-functional	Summary work triggers from role budgets and does not run on every message.	351	Short sessions make no summary calls.	S-e1c64020
+R-304	requirement	Each summary pass consumes a bounded forward chunk of unsummarized committed history and advances its monotonic coverage cursor, or fails explicitly.	352	Coverage increases after each successful pass.	S-e1c64020
+R-305	success-criterion	Summaries are size-bounded.	353	At most 4 KiB UTF-8 and within the consumers' tighter token budget.	S-e1c64020
+R-306	success-criterion	Summarizer calls per chat attempt are bounded by default.	354	At most 2 per attempt.	S-e1c64020
+R-307	non-functional	A chunk plus previous summary, instructions and output allowance fits the summarizer's window.	355	Every summarizer call passes the window check.	S-e1c64020
+R-308	non-functional	covered_seq is the last fully covered message, and an optional {message_seq, byte_offset} cursor records partial coverage.	357	The checkpoint stores both.	S-e1c64020
+R-309	non-functional	Progress compares the pair monotonically, so partial coverage is never taken for a full turn.	358	A partial checkpoint does not advance covered_seq.	S-e1c64020
+R-310	non-functional	The public transcript is unchanged by summarization.	359	Message history is identical before and after.	S-e1c64020
+R-311	requirement	Partial summary progress is durably checkpointed and reused when later steps fail.	360	After a generation failure, the retry reuses the checkpoint with no new summary of the same chunk.	S-e1c64020
+R-312	non-functional	When more catch-up is needed beyond the per-attempt budget, CONTEXT_PREPARING is returned as retryable only if coverage advanced and further progress is possible.	361	CONTEXT_PREPARING only with advanced coverage.	S-e1c64020
+R-313	non-functional	A context that cannot make bounded progress returns final 422 SESSION_CONTEXT_EXHAUSTED.	362	Such a session returns 422, recorded as failed_final.	S-e1c64020
+R-314	non-functional	An unresolved paid summary call still follows uncertain handling.	363	It is marked uncertain, not CONTEXT_PREPARING.	S-e1c64020
+R-315	non-functional	A failed summary may be bypassed only when an existing safe context fits and the call outcome is known.	364	A bypass happens only under both conditions.	S-e1c64020
+R-316	requirement	Summary provenance distinguishes user statements, prior assistant assertions, cited KB facts, unresolved questions and preserved user constraints.	365	The summary structure labels each category.	S-e1c64020
+R-317	requirement	The implementation keeps summary coverage and source hashes and procedure and model versions so checkpoints can be validated after a restart or model change.	366	A checkpoint with a mismatched hash or version is rejected.	S-e1c64020
+R-318	non-functional	Summary quality is measured, not asserted lossless.	367	A summary-quality evaluation is reported.	S-e1c64020
+R-319	non-functional	Regeneration from original history stays possible when summary policy changes; checkpoints never rewrite history.	369	A policy change can rebuild the summaries.	S-e1c64020
+R-320	non-functional	Native prompt caching is implemented for the selected LLM profiles, not just an unused interface.	370	Adapters send the cache controls.	S-e1c64020
+R-321	non-functional	Answers, authorization and continuity are independent of cache hit, miss, eviction or restart.	371	Results are identical with the cache disabled or flushed.	S-e1c64020
+R-322	requirement	The cache contract distinguishes auto, prefer_reuse and no_explicit_cache from a separate hard require_no_prompt_cache constraint.	372	All four settings are modeled distinctly.	S-e1c64020
+R-323	non-functional	no_explicit_cache adds no cache directives, though automatic provider caching may still happen.	373	No cache directives are sent.	S-e1c64020
+R-324	non-functional	require_no_prompt_cache forbids cache reads and writes and is satisfiable only by a verified endpoint capability.	374	An unverified endpoint is rejected.	S-e1c64020
+R-325	non-functional	A hard cache, retention or privacy constraint the endpoint cannot verify fails configuration before private content is sent.	376	Startup fails, and no content is sent.	S-e1c64020
+R-326	requirement	Cache retention, storage options and provider policy are explicitly configured or documented as immutable or unsupported.	377	Each profile declares these.	S-e1c64020
+R-327	requirement	Cacheable prompt segments serialize deterministically across requests and restarts for identical state and profile versions.	378	Byte-level golden tests are stable across restarts.	S-e1c64020
+R-328	non-functional	Request IDs, timestamps and unstable ordering never enter reusable prompt prefixes unless semantically necessary.	379	Prefixes contain none of them.	S-e1c64020
+R-329	non-functional	Prompt assembly uses ordered structures or deterministic serialization, checked by byte-level golden tests.	380	The golden tests pass.	S-e1c64020
+R-330	requirement	Adapters should place cache breakpoints after stable instructions, summary and the completed tail, keeping evidence and the question after them.	382	Breakpoint positions match in the adapter tests.	S-e1c64020
+R-331	non-functional	Cross-session reuse is limited to non-private common instructions; session content never enters a shared application cache entry.	384	Shared entries hold no session content.	S-e1c64020
+R-332	requirement	Application cache identity includes authorization equivalence, tenant, profile and model and content versions, plus subject and session for private material.	386	Keys differ when any of these differ.	S-e1c64020
+R-333	non-functional	Provider routing keys are not proof of tenant isolation.	387	Isolation is not claimed from routing keys.	S-e1c64020
+R-334	non-functional	Private prefixes need a documented provider isolation boundary, and routing keys contain no raw personal identifiers.	388	Routing keys are opaque.	S-e1c64020
+R-335	requirement	The capability matrix pins and tests actual endpoint and model cache controls, thresholds, TTL semantics and usage accounting.	389	Each pinned profile has passing cache tests.	S-e1c64020
+R-336	non-functional	Cache controls are not assumed present on every OpenAI-compatible endpoint.	392	Unverified endpoints get no cache controls.	S-e1c64020
+R-337	non-functional	Hard no-cache support is never claimed from the absence of cache directives.	396	An unverified hard constraint is rejected.	S-e1c64020
+R-338	non-functional	Optional pre-warming uses a declared capability, a bounded non-sensitive prefix and journaled usage, without blocking readiness or becoming a required background service.	397	Readiness is independent of warm-up, and its usage is journaled.	S-e1c64020
+R-339	non-functional	Unsupported endpoints never receive invented parameters.	399	No unknown parameter is sent.	S-e1c64020
+R-340	non-functional	Cache-write charges and uncertain warm-up outcomes are recorded even without generated text.	400	Warm-up usage records exist.	S-e1c64020
+R-341	non-functional	Optional KB-result cache keys include query and context identity, authorization scope, filters and corpus revision, with an explicit TTL and invalidation policy.	401	A change in any part misses the cache.	S-e1c64020
+R-342	non-functional	The KB cache is bypassed when freshness or authorization equivalence cannot be established.	402	In that case the KB is called directly.	S-e1c64020
+R-343	requirement	Optional cache failures degrade to uncached operation within the original resource and deadline limits.	403	With the cache down, turns succeed within the deadline.	S-e1c64020
+R-344	non-functional	Complete-answer and semantic caching are not enabled in the pilot.	404	No such caching exists.	S-e1c64020
+R-345	requirement	Each inference attempt, including decisions, summaries, generation, retries and pre-warming, has a durable uniquely keyed usage record.	406	Every call has exactly one usage record.	S-e1c64020
+R-346	non-functional	Usage records distinguish reported, estimated and unknown, and never turn missing usage or uncertain billing into zero.	407	Missing usage is stored as unknown.	S-e1c64020
+R-347	requirement	Usage normalization preserves provider field semantics and does not double-count cached input.	408	Cached input is counted once.	S-e1c64020
+R-348	non-functional	Unsupported usage fields remain unknown.	412	They are stored as unknown.	S-e1c64020
+R-349	requirement	Operational provenance records configured and returned model IDs, endpoint profile, prompt, question and policy versions, summary coverage, KB revision and decision verdicts and probabilities.	413	The provenance record carries each field.	S-e1c64020
+R-350	requirement	Content-bearing provenance and saved stage outputs get access, encryption and deletion protections equal to conversation data.	414	They are covered by the same controls and the same deletion.	S-e1c64020
+R-351	non-functional	Estimated cost uses a dated price profile and separately shows reported charges, estimates and unresolved possible charges.	415	The cost report has three separate figures and a price date.	S-e1c64020
+R-352	requirement	The service enforces per-attempt call and output budgets, including retries and summaries, before dispatching another paid operation.	416	An over-budget call is not dispatched.	S-e1c64020
+R-353	success-criterion	The default domain attempt has a fixed call budget.	417	1 intent, 1 evidence assessment, at most 2 summaries, 1 generation.	S-e1c64020
+R-354	success-criterion	An opted-in uncertain retry adds a bounded number of calls per attempt.	418	At most 1 extra call per attempt.	S-e1c64020
+R-355	non-functional	Shared endpoint and account rate limits still apply.	419	Retries respect the account limits.	S-e1c64020
+R-356	non-functional	Real-price ceilings require complete price profiles; unknown pricing gives no false monetary guarantee.	420	A ceiling is refused without a complete price profile.	S-e1c64020
+R-357	non-functional	Session deletion removes linked per-request content and provenance, keeping only approved non-content aggregates that cannot link back.	421	After deletion, no linked record remains.	S-e1c64020
+R-358	non-functional	Aggregates may include date, provider and model, token totals and cost estimates, but exclude request, session and subject IDs, hashes and probability vectors.	422	Aggregate rows contain none of the excluded fields.	S-e1c64020
+R-359	non-functional	Small or identifiable cohorts require aggregation or suppression under the retention policy.	423	Small cohorts are suppressed.	S-e1c64020
+R-360	non-functional	Pseudonymous event rows are not treated as anonymous aggregates.	424	Such rows are deleted with the session.	S-e1c64020
+R-361	non-functional	Every HTTP error uses RFC 9457 application/problem+json with type, title, status, detail, instance, code, request_id, request_state and retryable as applicable.	425	Every error response validates against the problem schema.	S-e1c64020
+R-362	non-functional	The problem type may be about:blank, with the stable application code giving the condition.	426	code is always present.	S-e1c64020
+R-363	non-functional	retryable=true means a same-key retry may be allowed once the condition clears, never overriding auth, version or capacity checks.	427	Retries still go through every check.	S-e1c64020
+R-364	non-functional	Retry-After is a bounded integer-second hint, not a promised completion time.	428	The value is a bounded integer.	S-e1c64020
+R-365	non-functional	Error and status mapping follows the catalog, with uncertainty and commit reconciliation taking precedence over optimistic retry labels.	429	Each catalog code is produced in its case.	S-e1c64020
+R-366	non-functional	400 INVALID_REQUEST or UNSUPPORTED_LOCALE for invalid schema or field, with no claim.	430	No request record is created.	S-e1c64020
+R-367	non-functional	401 UNAUTHENTICATED for missing, invalid or expired identity, with no claim or a safe retryable pre-dispatch interruption.	431	No paid call follows.	S-e1c64020
+R-368	non-functional	403 RETRIEVAL_SCOPE_FORBIDDEN for an impermissible retrieval scope, with no paid call.	432	No paid call.	S-e1c64020
+R-369	non-functional	404 RESOURCE_NOT_FOUND for unknown, deleted or other-owner resources, indistinguishably.	433	The responses are identical.	S-e1c64020
+R-370	non-functional	409 IDEMPOTENCY_CONFLICT for the same key with different input; the existing record is unchanged.	434	The record is unchanged.	S-e1c64020
+R-371	non-functional	409 REQUEST_IN_PROGRESS for a queued, running or committing request, with Retry-After and status guidance.	435	Retry-After is present.	S-e1c64020
+R-372	non-functional	409 STATE_CONFLICT when the retry version changed, saved as failed_final.	436	The state is failed_final.	S-e1c64020
+R-373	non-functional	409 OUTCOME_UNCERTAIN for an unreconciled potentially charged dispatch, with no silent same-key execution.	437	No execution follows.	S-e1c64020
+R-374	non-functional	409 SESSION_BUSY when deletion races active or queued work; nothing is deleted.	438	The session is intact.	S-e1c64020
+R-375	non-functional	409 SESSION_AUTHORIZATION_CHANGED when authorization differs from the session snapshot; no history, replay or model access.	439	No data or calls.	S-e1c64020
+R-376	non-functional	413 REQUEST_TOO_LARGE for an oversized body, with no claim.	440	No request record is created.	S-e1c64020
+R-377	non-functional	422 CONTEXT_LIMIT or SESSION_CONTEXT_EXHAUSTED when valid input cannot fit or progress, saved as failed_final.	441	The state is failed_final.	S-e1c64020
+R-378	non-functional	429 QUEUE_FULL, PRINCIPAL_LIMIT or ADMISSION_BUDGET_EXCEEDED before claim, with Retry-After; the same ID may be resubmitted.	442	No request record is created; a resubmission is accepted later.	S-e1c64020
+R-379	non-functional	502 KB_INVALID, DECISION_INVALID, GENERATION_INVALID, CITATION_INVALID or GENERATION_TRUNCATED for a known invalid upstream result, saved as failed_final, with no partial conversation.	443	No turn is committed.	S-e1c64020
+R-380	non-functional	503 KB_UNAVAILABLE, DECISION_UNAVAILABLE, LLM_UNAVAILABLE or UPSTREAM_RATE_LIMITED are retryable only with proven safe resume, otherwise OUTCOME_UNCERTAIN.	444	The classification follows the evidence.	S-e1c64020
+R-381	non-functional	503 STORE_UNAVAILABLE, WRITER_UNAVAILABLE or SERVICE_DRAINING means no admission or a safely journaled interruption; an unresolved commit is reconciled.	445	No guessed state.	S-e1c64020
+R-382	non-functional	503 MODEL_PROFILE_MISMATCH for unapproved model drift, with no successful turn.	446	No turn is committed.	S-e1c64020
+R-383	non-functional	503 CONTEXT_PREPARING when coverage advanced but more catch-up is needed, retryable only under the progress rule.	447	Coverage advanced.	S-e1c64020
+R-384	non-functional	504 QUEUE_TIMEOUT or START_BUDGET_EXHAUSTED with no execution, stored retryable.	448	No paid call; the state is retryable.	S-e1c64020
+R-385	non-functional	504 DEPENDENCY_TIMEOUT or REQUEST_DEADLINE is retryable only before unresolved dispatch or with reusable results, otherwise OUTCOME_UNCERTAIN.	449	The classification follows the journal.	S-e1c64020
+R-386	non-functional	500 INTERNAL_ERROR is a safe generic problem, with request state following journal evidence.	450	No internal details are leaked.	S-e1c64020
+R-387	non-functional	A client disconnect gets no invented HTTP delivery.	451	Nothing is sent after the disconnect.	S-e1c64020
+R-388	non-functional	A disconnect's state and CLIENT_DISCONNECTED diagnostic appear in the journal and status response.	452	The status shows CLIENT_DISCONNECTED.	S-e1c64020
+R-389	non-functional	A valid provider refusal is a 200 controlled outcome, not an infrastructure error.	453	A refusal returns 200.	S-e1c64020
+R-390	requirement	Same-key replay of a completed response or final problem preserves the original outcome and adds Idempotent-Replayed: true.	454	The replay body equals the original, with the header set.	S-e1c64020
+R-391	success-criterion	Every attempt has an absolute total deadline from handler entry, a pre-execution queue cap and a reserved finalization budget.	455	Total 180 s; queue 60 s; finalization reserve 5 s.	S-e1c64020
+R-392	non-functional	Before each stage, the service verifies that the stage cap plus the remaining stages and finalization fit the remaining deadline.	456	A stage that cannot fit is not started.	S-e1c64020
+R-393	non-functional	KB, decision, summary, generation, storage and capacity waits use cancellable bounded contexts derived from the absolute deadline.	457	Every wait is cancelled at the deadline.	S-e1c64020
+R-394	success-criterion	Default per-dependency time caps are set.	458	KB 10 s; each decision 10 s; each summary 25 s; generation 60 s; finalization 5 s.	S-e1c64020
+R-395	non-functional	Dependency caps are limits within one absolute budget, not cumulative entitlements.	459	The sum is bounded by 180 s.	S-e1c64020
+R-396	success-criterion	A cold domain path with two summaries fits the total budget only when actual times permit, as decided by the start and stage guards.	460	The guards prevent exceeding 180 s.	S-e1c64020
+R-397	requirement	Caller cancellation removes waiting work and propagates to in-flight calls, without being taken as proof that provider work or billing was undone.	461	Cancellation stops the calls, and in-flight paid calls are marked uncertain.	S-e1c64020
+R-398	success-criterion	A detached finalization or reconciliation context may outlive the HTTP connection for a bounded time while keeping its slot until resolved.	464	At most 5 s beyond the disconnect.	S-e1c64020
+R-399	requirement	SDK backoff and retries respect remaining time, attempt limits, upstream retry hints and jitter, and never retry auth or schema errors.	465	There are no retries on 401 or 400, and retries stay within the deadline.	S-e1c64020
+R-400	requirement	Each dependency account has bounded in-flight and rate-limit controls shared across all roles using it.	466	Combined role traffic never exceeds the account limit.	S-e1c64020
+R-401	non-functional	Intent, evidence, summary and generation calls cannot bypass the account limits through separate clients.	467	All roles share one limiter per account.	S-e1c64020
+R-402	non-functional	Dependency limits are configurable independently of the 100-turn scheduler.	468	Changing one leaves the other unchanged.	S-e1c64020
+R-403	success-criterion	Gateway and load-balancer timeouts cover the service deadline plus finalization overrun and transport margin.	470	Pilot value 200 s.	S-e1c64020
+R-404	success-criterion	The HTTP server configures header-read, body-read and write timeouts for the deployment profile.	471	ReadHeaderTimeout 5 s; bounded body reads; WriteTimeout >= 200 s.	S-e1c64020
+R-405	success-criterion	Graceful shutdown stops admission, fails readiness, removes queued work safely and drains active work before releasing writer ownership.	472	Drain at most 185 s.	S-e1c64020
+R-406	success-criterion	Deployment termination grace covers pre-stop work, drain and a safety margin.	473	Grace 200 s with pre-stop <= 5 s.	S-e1c64020
+R-407	non-functional	Network calls carrying private content use authenticated encrypted transport to allowlisted endpoints, except isolated local tests.	476	Non-TLS or non-allowlisted endpoints are refused outside tests.	S-e1c64020
+R-408	non-functional	Secrets come through approved runtime secret mechanisms and never enter Git, prompts, responses, fixtures or logs.	477	A secret scan finds none.	S-e1c64020
+R-409	non-functional	Conversation and content-bearing journal storage use approved at-rest encryption and restricted access.	478	The storage configuration shows encryption and access limits.	S-e1c64020
+R-410	requirement	Logs and metrics exclude raw tokens, full transcripts, KB passages and sensitive prompt content by default.	479	Captured logs and metrics contain none of them.	S-e1c64020
+R-411	requirement	Input, output, journal and diagnostic handling enforces byte and count limits and sanitizes untrusted source metadata without fetching source URLs.	480	Oversized or malicious metadata is bounded and sanitized, and no fetch occurs.	S-e1c64020
+R-412	non-functional	A citation URL is KB-supplied provenance, not permission for server-side fetching.	481	Citation URLs are never fetched.	S-e1c64020
+R-413	requirement	The session stores an authorization fingerprint of owner, normalized roles, retrieval scope and authorization revision.	483	The fingerprint changes when any of them changes.	S-e1c64020
+R-414	requirement	A changed fingerprint blocks history, replay and context reuse with SESSION_AUTHORIZATION_CHANGED but still allows authorized deletion.	484	Reads return 409, and DELETE succeeds.	S-e1c64020
+R-415	requirement	A deployment documents whether historical answers are snapshots of formerly authorized evidence or need current document-level reauthorization.	485	The deployment profile records the choice.	S-e1c64020
+R-416	non-functional	The pilot does not implement retroactive document-level redaction of historical answers, summaries and replays.	486	The limitation is documented.	S-e1c64020
+R-417	non-functional	Blocking changed roles or revisions catches only signalled changes, not unexposed ACL changes.	487	The limitation is documented.	S-e1c64020
+R-418	non-functional	Sensitive production use needs reliable revision propagation or an approved historical-access policy, not reliance on fresh retrieval.	490	One of the two exists before sensitive use.	S-e1c64020
+R-419	non-functional	A release needing immediate historical revocation stays blocked until the identity and KB contract can enforce it.	491	Such a release is marked blocked.	S-e1c64020
+R-420	requirement	Before real personal data is enabled, the deployment has an approved data-classification and processor inventory covering every provider.	492	The approved inventory exists before real data.	S-e1c64020
+R-421	requirement	The inventory records data categories, purposes, locations, subprocessors, retention, training-use terms and permitted classification.	493	The inventory has each field per provider.	S-e1c64020
+R-422	requirement	The privacy or legal owner approves the processing and international-transfer basis, including KVKK Article 9 and GDPR Chapter V, before transfers are enabled.	494	Approval is recorded before transfers.	S-e1c64020
+R-423	requirement	The deployment profile separately verifies prompt-cache behavior, app-state storage and provider logging and retention, not equating store=false with zero retention.	498	Each is verified separately.	S-e1c64020
+R-424	non-functional	Each provider needs its own documented retention evidence; TypeSafe retention is not inferred from other terms.	501	Jev has its own evidence.	S-e1c64020
+R-425	non-functional	When a required location or retention property is unknown, real-data activation fails closed, while synthetic tests stay available.	502	Real-data mode refuses to start.	S-e1c64020
+R-426	non-functional	Session deletion uses the same per-session lifecycle and admission synchronization as request creation and execution.	503	Delete and admit serialize per session.	S-e1c64020
+R-427	requirement	Deletion returns 409 SESSION_BUSY while any active, queued, committing or reserved work exists for the session.	504	DELETE during work returns 409.	S-e1c64020
+R-428	non-functional	Deleting an inactive session first tombstones it atomically, so admission, summaries and commits cannot resurrect it.	505	After a tombstone, concurrent writes fail.	S-e1c64020
+R-429	non-functional	A 204 deletion removes transcript, summaries, metadata, request results and linked content-bearing records, and invalidates local caches.	506	No linked content remains.	S-e1c64020
+R-430	non-functional	If purge fails after tombstoning, the session stays unavailable for chat and reads.	507	Reads return 404.	S-e1c64020
+R-431	non-functional	A repeated authorized DELETE or startup purge recovery finishes cleanup without reactivating the session.	508	The session stays deleted.	S-e1c64020
+R-432	non-functional	Backup expiry and provider-side deletion are separate documented controls, not implied by a live-store 204.	509	Documentation states these controls.	S-e1c64020
+R-433	requirement	Session IDs are server-generated cryptographically random UUIDs checked against a durable reserved-ID registry before allocation.	510	A reserved ID is never allocated.	S-e1c64020
+R-434	non-functional	The registry keeps a protected digest of allocated and deleted IDs, so non-reuse does not rest on collision probability alone.	511	Digests persist after deletion.	S-e1c64020
+R-435	non-functional	The registry holds no conversation, owner or content fields after purge.	512	Registry rows have only the digest and status.	S-e1c64020
+R-436	non-functional	Digest key or version migration keeps the non-reuse checks.	513	Old IDs are still refused after migration.	S-e1c64020
+R-437	non-functional	The anti-reuse record belongs in the data inventory, and hashing is not claimed to anonymize data.	514	The inventory lists the registry.	S-e1c64020
+R-438	non-functional	Retention cleanup uses the same busy checks and tombstone and purge semantics as explicit deletion.	515	Retention cleanup on a busy session is deferred.	S-e1c64020
+R-439	non-functional	Real-data deployment configures inactivity retention, backup retention, deletion processing and legal exceptions before readiness allows real data.	516	Readiness fails without them.	S-e1c64020
+R-440	non-functional	The synthetic pilot may disable automatic expiry; no production retention period is fabricated.	517	No invented period exists.	S-e1c64020
+R-441	non-functional	Status polling and duplicate replays do not extend retention unless the policy says so.	518	Polling leaves the expiry unchanged.	S-e1c64020
+R-442	requirement	Startup recovery finishes interrupted tombstone purges without restoring removed request keys or leaking deleted content into summaries or model calls.	519	After a crash mid-purge, the restart completes the purge with no leak.	S-e1c64020
+R-443	requirement	Content and status reads after tombstoning return 404, with authorized DELETE recovery handled separately.	520	Reads return 404, and DELETE can complete.	S-e1c64020
+R-444	requirement	The service implements the named configuration defaults and validates their combined consistency at startup.	521	Inconsistent defaults fail startup.	S-e1c64020
+R-445	non-functional	The repository and process name is chat-orchestrator.	522	The name matches.	S-e1c64020
+R-446	success-criterion	One intended active writer, enforced by PostgreSQL ownership and epoch fencing.	523	1 writer.	S-e1c64020
+R-447	success-criterion	max_active_requests default.	524	100.	S-e1c64020
+R-448	success-criterion	max_queued_requests default, including same-session waits.	525	100.	S-e1c64020
+R-449	success-criterion	max_queued_per_session default.	526	2.	S-e1c64020
+R-450	success-criterion	Per-principal active and queued defaults.	527	10 active / 10 queued.	S-e1c64020
+R-451	success-criterion	Session creation rate and retained sessions per principal.	528	30/min, burst 10 / 1,000 retained.	S-e1c64020
+R-452	success-criterion	Queue wait and request deadline defaults.	529	60 s / 180 s.	S-e1c64020
+R-453	success-criterion	Minimum start budget and finalization budget defaults.	530	60 s / 5 s.	S-e1c64020
+R-454	success-criterion	Cold admission duration estimate, updated conservatively from observation.	531	30 s per turn.	S-e1c64020
+R-455	success-criterion	Dependency caps.	532	KB 10 s; each decision 10 s; each summary 25 s; generation 60 s.	S-e1c64020
+R-456	success-criterion	max_summary_calls_per_attempt default.	533	2.	S-e1c64020
+R-457	success-criterion	max_uncertain_model_retries default and permitted values.	534	Default 0; allowed 0 or 1.	S-e1c64020
+R-458	success-criterion	HTTP body, question and chat-response limits.	535	32 KiB / 8 KiB / 64 KiB.	S-e1c64020
+R-459	success-criterion	Maximum normalized KB items, with evidence bytes and tokens profile-bounded.	536	8 items.	S-e1c64020
+R-460	success-criterion	Summary text limit, with the tighter role token cap applied.	537	4 KiB.	S-e1c64020
+R-461	success-criterion	History page size.	538	50 default; 100 maximum.	S-e1c64020
+R-462	non-functional	Supported locales are tr-TR and en-US, with tr-TR the default.	539	Only these two are accepted, and the default is tr-TR.	S-e1c64020
+R-463	success-criterion	Gateway and server write timeouts.	540	Gateway 200 s; server write >= 200 s.	S-e1c64020
+R-464	success-criterion	Header and body read timeouts.	541	Header 5 s; body bounded to 10 s.	S-e1c64020
+R-465	success-criterion	Drain and termination grace.	542	Drain 185 s; grace 200 s; pre-stop <= 5 s.	S-e1c64020
+R-466	non-functional	Native cache intent defaults to prefer_reuse, subject to the approved privacy and capability profile.	543	The default is prefer_reuse.	S-e1c64020
+R-467	non-functional	Pre-warm is disabled, the generic KB cache is optional and disabled, and the full-response cache is deferred.	544	All are off by default.	S-e1c64020
+R-468	non-functional	Live external tests are opt-in and separate from Gate A.	545	Gate A runs no live test.	S-e1c64020
+R-469	non-functional	Production retention and prices need explicit approved configuration; no legal period or current price is assumed.	546	No default retention or price exists.	S-e1c64020
+R-470	non-functional	Raising any limit requires revalidating queue delay, provider quotas, DB connections, memory, the HTTP timeout chain and model budgets.	548	The revalidation is documented with any change.	S-e1c64020
+R-471	non-functional	The 100-concurrency test uses enough distinct principals to respect the principal cap, unless a single-principal test explicitly overrides the cap.	549	The test uses at least 10 principals or an explicit override.	S-e1c64020
+R-472	requirement	Provider endpoints, credentials, model profiles, protocol versions, limits, policies and storage settings are configuration artifacts, not business-logic constants.	550	No such value is hard-coded in core logic.	S-e1c64020
+R-473	non-functional	Startup rejects incompatible deadlines, missing model caps, invalid threshold orderings, unknown mandatory capabilities and incomplete non-synthetic privacy or auth profiles.	551	Each case fails startup.	S-e1c64020
+R-474	non-functional	Toolchain, dependencies, database image and fixture versions are pinned in reproducible artifacts, with no unpinned downloads during the gate.	552	The gate runs with pinned artifacts only.	S-e1c64020
+R-475	requirement	Structured lifecycle logs make request and attempt state, admission sequence, version, writer epoch, stage timing, action and error category diagnosable without raw content.	553	Log entries carry these fields and no content.	S-e1c64020
+R-476	requirement	Metrics cover active and waiting work, rejections, queue delay, principal saturation, rate limits, summary progress, retries, usage uncertainty and cache reads and writes, with bounded-cardinality labels.	554	Each metric is exported.	S-e1c64020
+R-477	non-functional	Request, session and subject IDs are never metric label values.	555	No such label exists.	S-e1c64020
+R-478	requirement	Readiness requires valid configuration, a usable store, current writer ownership and completed recovery, without paid calls on probes.	556	Readiness fails when any is missing, and probes make no model call.	S-e1c64020
+R-479	requirement	Transient queue saturation produces admission errors and metrics without making the whole service unready.	557	A full queue returns 429 while readiness stays up.	S-e1c64020
+R-480	requirement	A dependency or model-drift alert identifies the affected endpoint or profile without exposing keys or private prompts.	558	The alert names the profile and carries no secret.	S-e1c64020
+R-481	non-functional	Gate A runs without outbound internet, production credentials or hidden paid calls, allowing loopback infrastructure only.	559	Gate A passes with the network blocked.	S-e1c64020
+R-482	non-functional	Core tests use deterministic fakes, protocol tests use local HTTP fixtures, and persistence and ownership tests use real local PostgreSQL.	560	The test suites use those dependencies.	S-e1c64020
+R-483	non-functional	Concurrency and timeout tests use barriers, observable states and controlled clocks rather than relying only on sleeps.	561	These tests are not timing-flaky.	S-e1c64020
+R-484	non-functional	Gate preparation supplies vendored modules, a pinned Go toolchain, cgo, a C compiler and a preloaded PostgreSQL image or instance.	562	All are present before the gate.	S-e1c64020
+R-485	non-functional	Provisioning may use the network before the offline boundary, but gate execution never pulls modules or images.	564	No pull occurs during the gate.	S-e1c64020
+R-486	non-functional	go mod vendor is the dependency preparation path unless a documented sealed alternative is tested.	565	vendor/ is used.	S-e1c64020
+R-487	non-functional	The gate includes formatting, compilation, go vet, unit, contract, store and e2e tests and race detection, with failures propagated to the exit status.	566	Any failure gives a non-zero exit.	S-e1c64020
+R-488	non-functional	The gate script runs offline with GOTOOLCHAIN=local, GOPROXY=off, GOSUMDB=off, -mod=vendor and CGO_ENABLED=1, checking gofmt, build, vet, test and test -race.	567	The script runs as given and exits 0.	S-e1c64020
+R-489	non-functional	The formatting check covers tracked generated Go files but not vendored code.	569	gofmt excludes vendor/.	S-e1c64020
+R-490	non-functional	Missing prerequisites or skipped mandatory tests fail; neither counts as a pass.	570	Skips cause a failure.	S-e1c64020
+R-491	requirement	The implementation satisfies every applicable acceptance family, with named subtests per normative requirement.	571	Each family A01 to A38 passes, with named subtests.	S-e1c64020
+R-492	success-criterion	A01: a normal domain turn does history load, intent, authorized KB, three decisions, generation, citation validation and one atomic commit.	572	A01 passes.	S-e1c64020
+R-493	success-criterion	A02: a restart preserves transcript and version, a follow-up uses the prior referent, and a cold cache does not change continuity.	573	A02 passes.	S-e1c64020
+R-494	success-criterion	A03: budgeted checkpoints preserve transcript, coverage and provenance; generation failure keeps paid summary progress.	574	A03 passes.	S-e1c64020
+R-495	success-criterion	A04: a barrier test reaches 100 active sessions, never 101; the 101st starts after release; idle sessions use no slots.	575	A04 passes.	S-e1c64020
+R-496	success-criterion	A05: FIFO within sessions, no cross-session blocking, tail reinsertion and principal-cap skipping.	576	A05 passes.	S-e1c64020
+R-497	success-criterion	A06: queue bounds, estimated-start rejection, start guard and expiry, with no claim on overload and no call for cancelled waiters.	577	A06 passes.	S-e1c64020
+R-498	success-criterion	A07: concurrent same-key claims, completed replay, changed-payload conflict, fingerprint and retained keys.	578	A07 passes.	S-e1c64020
+R-499	success-criterion	A08: crashes at each dispatch stage recover from evidence, never silently replaying an uncertain call.	579	A08 passes.	S-e1c64020
+R-500	success-criterion	A09: atomic commit, version collision, lost acknowledgement and reconciliation without regeneration.	580	A09 passes.	S-e1c64020
+R-501	success-criterion	A10: every policy row, contradictory judgments, empty evidence, exact probability boundaries and malformed-decision precedence.	581	A10 passes.	S-e1c64020
+R-502	success-criterion	A11: Jev wire mapping, required model, validation, Noul without confidence, labelled metrics and model drift.	582	A11 passes.	S-e1c64020
+R-503	success-criterion	A12: both LLM adapters pass shared conformance, and unsupported capabilities fail without core changes.	583	A12 passes.	S-e1c64020
+R-504	success-criterion	A13: cache request mapping, byte-identical prefix across restarts, partial invalidation, misses and expiry, and pre-warm limits.	584	A13 passes.	S-e1c64020
+R-505	success-criterion	A14: durable usage for every call type, provider-specific cache accounting and unknown usage.	585	A14 passes.	S-e1c64020
+R-506	success-criterion	A15: bulkheads, 429s, retry limits, cancellation, deadlines and resource release at every stage.	586	A15 passes.	S-e1c64020
+R-507	success-criterion	A16: JWT validation and renewal, owner separation, 404 indistinguishability and authorization-change blocking.	587	A16 passes.	S-e1c64020
+R-508	success-criterion	A17: pagination, cursor scope, busy DELETE 409, deletion races, purge recovery and ID non-reuse.	588	A17 passes.	S-e1c64020
+R-509	success-criterion	A18: two-process startup, recovery isolation, lock loss, stale epoch, the control-row race and no non-owner model call.	589	A18 passes.	S-e1c64020
+R-510	success-criterion	A19: real PostgreSQL migrations, conformance, restart persistence, transaction failure and a backup and restore drill.	590	A19 passes.	S-e1c64020
+R-511	success-criterion	A20: the offline gate from prepared dependencies fails on missing prerequisites, with no hidden skips, network access or committed credentials.	591	A20 passes.	S-e1c64020
+R-512	success-criterion	A21: OpenAPI and error-envelope compliance across all error statuses, size bounds, saved problems and replay headers.	592	A21 passes.	S-e1c64020
+R-513	success-criterion	A22: pre-dispatch cancellation retries with the same ID, the version guard rejects a stale retry, and a first-attempt FIFO is not rejected.	593	A22 passes.	S-e1c64020
+R-514	success-criterion	A23: uncertain retry 0 or 1, no retry after disconnect or restart, one extra call, identity checks and the duplicate-charge ledger.	594	A23 passes.	S-e1c64020
+R-515	success-criterion	A24: an oversized backlog catches up durably in chunks, same-key continuation succeeds, and no progress returns a terminal error.	595	A24 passes.	S-e1c64020
+R-516	success-criterion	A25: smalltalk skips the KB, meta answers use the transcript, and out-of-scope and ambiguous intent are controlled.	596	A25 passes.	S-e1c64020
+R-517	success-criterion	A26: fabricated or missing citations, cited-subset order, wrong-session refs, empty output, truncation and refusal mapping.	597	A26 passes.	S-e1c64020
+R-518	success-criterion	A27: a Turkish response from English evidence, locale precedence, immutable defaults and filter narrowing.	598	A27 passes.	S-e1c64020
+R-519	success-criterion	A28: timeout alignment, disconnected-commit reconciliation, the readiness, drain and termination chain, and forced-shutdown recovery.	599	A28 passes.	S-e1c64020
+R-520	success-criterion	A29: a hard no-cache or no-retention incompatibility fails before dispatch, plus synthetic versus real-data activation checks.	600	A29 passes.	S-e1c64020
+R-521	success-criterion	A30: startup validation for all roles, cache tokens counted and no silent truncation after a model switch.	601	A30 passes.	S-e1c64020
+R-522	success-criterion	A31: one subject cannot exhaust the slots, plus per-principal quotas and bounded bookkeeping.	602	A31 passes.	S-e1c64020
+R-523	success-criterion	A32: deletion removes usage and provenance, non-linkable aggregates survive, logs are redacted and metric labels bounded.	603	A32 passes.	S-e1c64020
+R-524	success-criterion	A33: a missing KB or identity contract blocks Gate A, and missing credentials block live gates without fake success.	604	A33 passes.	S-e1c64020
+R-525	success-criterion	A34: each claimed live cache profile records a provider-reported positive cache read, or stays unverified.	605	At least 1 positive cache read per claimed profile.	S-e1c64020
+R-526	success-criterion	A35: quality harness, frozen labelled set, baseline, reports and release thresholds.	606	A35 passes.	S-e1c64020
+R-527	success-criterion	A36: complete requirement-to-test mapping, pins, delivery evidence and bootstrap separation.	607	A36 passes.	S-e1c64020
+R-528	success-criterion	A37: untrusted instructions cannot alter endpoint, owner or policy or execute tools; live behavior is measured in Gate C.	608	A37 passes.	S-e1c64020
+R-529	success-criterion	A38: a provider or model change rebuilds context, validates checkpoints and cache identity, respects budgets and uses no old handle.	609	A38 passes.	S-e1c64020
+R-530	requirement	The repository maintains docs/tests/traceability.json with one entry per normative requirement ID, listing acceptance IDs, test names, evidence paths and status.	612	Every requirement ID has one entry.	S-e1c64020
+R-531	non-functional	traceability.json follows the illustrated shape: document_id, revision and requirements entries.	613	The file validates against that shape.	S-e1c64020
+R-532	requirement	CI rejects duplicate or unknown IDs, unmapped requirements, missing mandatory test names and evidence marking an unexecuted or skipped test as passed.	614	Each defect fails CI.	S-e1c64020
+R-533	non-functional	Live-gate statuses distinguish passed, failed, blocked and unverified from planned.	615	The status field allows exactly these five values.	S-e1c64020
+R-534	non-functional	Quality thresholds and assertions are versioned before evaluation and never weakened after failures without a reviewed baseline change.	616	The threshold history shows versioning before evaluation.	S-e1c64020
+R-535	success-criterion	The project keeps calibration and held-out synthetic evaluation sets with reviewed labels and fixed evidence.	619	>= 20 calibration and >= 40 held-out cases.	S-e1c64020
+R-536	success-criterion	The held-out set has a fixed composition by category.	620	>= 16 answerable (>= 8 follow-ups), 12 non-answerable, 4 clarification, 4 meta, 2 smalltalk, 2 out-of-scope.	S-e1c64020
+R-537	success-criterion	The held-out set includes adversarial overlays and both languages.	621	>= 8 adversarial cases; >= 12 each in Turkish and English.	S-e1c64020
+R-538	success-criterion	The held-out set exercises summarization and preserved user constraints.	622	>= 4 session sequences.	S-e1c64020
+R-539	non-functional	Every case states expected action, answerability, allowed references, required facts, forbidden claims and expected locale.	623	Each case has all six fields.	S-e1c64020
+R-540	non-functional	Gate C uses the real Jev and LLM profiles, fixed prompt and policy versions and frozen KB evidence, not fakes.	624	The Gate C configuration uses no fake.	S-e1c64020
+R-541	non-functional	Using a KB fixture in Gate C is recorded and does not certify real retrieval quality.	626	The report records the fixture choice.	S-e1c64020
+R-542	requirement	The held-out set runs twice per release profile, keeping every response and error and reporting per-run and aggregate counts.	628	Two runs are reported in full.	S-e1c64020
+R-543	requirement	Each run meets the release floors, with errors counted as failures in the denominators.	629	Every floor is met in both runs.	S-e1c64020
+R-544	success-criterion	Answer rate on labelled answerable domain cases.	630	>= 80%.	S-e1c64020
+R-545	success-criterion	Correct domain abstention on missing, conflicting or insufficient cases.	631	>= 95%; zero unsupported consequential claims in the critical subset.	S-e1c64020
+R-546	success-criterion	Citation identifier validity on returned domain answers.	632	100%.	S-e1c64020
+R-547	success-criterion	Supported factual claims among generated domain claims.	633	>= 95%, with numerator, denominator and rubric.	S-e1c64020
+R-548	success-criterion	Correct intent and action on clarification, meta, smalltalk and out-of-scope cases.	634	>= 90% aggregate, with per-category results.	S-e1c64020
+R-549	success-criterion	Conversation facts and constraints preserved through summary.	635	>= 90% overall; 100% of critical constraints.	S-e1c64020
+R-550	success-criterion	Requested response language.	636	>= 95% for generated text; 100% for templates.	S-e1c64020
+R-551	non-functional	The release floors are pilot targets, not statistical guarantees.	637	The report states this.	S-e1c64020
+R-552	non-functional	Small denominators and raw failures stay visible.	638	The report shows the denominators and failures.	S-e1c64020
+R-553	requirement	Groundedness and summary-fidelity scoring has a documented human-review rubric or audited assessor, with human review of every critical failure and disputed score.	640	The rubric exists, and each critical or disputed item has a review.	S-e1c64020
+R-554	requirement	The quality report shows abstention, answerable-case errors, threshold behavior, latency, usage and unresolved cost alongside the scores.	641	The report has each section.	S-e1c64020
+R-555	requirement	A change in decision model, threshold, core prompt, summary policy or generation model triggers the relevant quality regression before promotion.	642	Promotion is blocked until the regression passes.	S-e1c64020
+R-556	requirement	The integration plan closes the interface inputs before claiming the affected implementation and full Gate A complete.	643	Each input is closed or Gate A is not claimed.	S-e1c64020
+R-557	non-functional	The KB wire contract (method, path, schemas, auth, mapping, limits, revision, failure and billing semantics) must be supplied; it is not yet in the source material.	644	An approved KB contract exists.	S-e1c64020
+R-558	non-functional	Principal transport: confirm issuer or gateway claim compatibility with the RS256 profile, or approve a mapping, using local signed fixtures.	645	Compatibility is confirmed or a mapping approved.	S-e1c64020
+R-559	non-functional	Storage: pin the PostgreSQL version and image, schema and migrations, and the advisory-lock and fencing profile.	646	The pins are recorded.	S-e1c64020
+R-560	non-functional	LLM protocols: pin protocol fixtures and capability schemas for both selected adapters.	647	The fixtures are pinned.	S-e1c64020
+R-561	non-functional	Decision input budgets: select a conservative local test cap and estimator, and record missing provider ceilings.	648	The cap and gaps are recorded.	S-e1c64020
+R-562	non-functional	Public API and KB authorization policy: freeze the metadata and filter mapping, historical-access policy and any required authorization revision.	649	The policy is frozen.	S-e1c64020
+R-563	non-functional	An invented KB endpoint, an incompatible JWT assumption or an untested remote-store transaction does not count as closure.	651	No such substitute is accepted.	S-e1c64020
+R-564	non-functional	Gate B, Gate C and real-data activation stay blocked or unverified for any missing input.	652	A missing input gives a blocked or unverified status.	S-e1c64020
+R-565	non-functional	Actual KB location and access: endpoint, corpus, credentials, safe test content and protocol acceptance.	653	All are supplied before Gate B.	S-e1c64020
+R-566	non-functional	Jev account and model: credential delivery, concrete returned model, alias mapping, observed limits and policy profile.	654	All are supplied before Gate B.	S-e1c64020
+R-567	non-functional	Generation and summary models: real endpoint and model IDs, capability and retention evidence, price profile and test authorization.	655	All are supplied before Gate B.	S-e1c64020
+R-568	non-functional	A second local or hosted LLM integration needs a provisioned endpoint only when live support is claimed.	656	Offline protocol tests need no endpoint.	S-e1c64020
+R-569	non-functional	Production identity and storage: issuer keys or gateway mapping, DB connection and secrets, and the writer and deploy profile.	657	All are supplied before production.	S-e1c64020
+R-570	non-functional	Privacy and retention: data categories, approved processors, locations and transfers, retention and the historical-access decision.	658	All are supplied before real data.	S-e1c64020
+R-571	non-functional	Native caching evidence: a script above the cache minimum, repeated within the lifetime, with reported read evidence.	659	The evidence exists for each claimed profile.	S-e1c64020
+R-572	non-functional	Unknown credentials, limits, prices, URLs or model IDs are never replaced with fabricated values or claimed live success.	660	No fabricated value is present.	S-e1c64020
+R-573	non-functional	The repository name is fixed as chat-orchestrator; the GitHub owner and brief location are bootstrap inputs, not runtime configuration.	661	Runtime configuration contains no owner or location.	S-e1c64020
+R-574	requirement	Delivery includes source, migrations, adapters, OpenAPI and wire contracts, configuration examples, operational and privacy profiles, fixtures, quality fixtures, traceability and gate scripts.	662	Each artifact is present.	S-e1c64020
+R-575	requirement	Gate A passes all deterministic software, configuration and contract tests with real local PostgreSQL and offline dependencies.	663	The Gate A run passes offline.	S-e1c64020
+R-576	success-criterion	Gate B separately exercises the actual KB, the pinned Jev profile and at least one real LLM, with sanitized reproducible evidence.	664	>= 1 real LLM, plus the real KB and Jev.	S-e1c64020
+R-577	success-criterion	A live native-cache claim includes a provider-reported positive cache read from a scripted repeated-prefix case.	665	>= 1 positive cache read, otherwise unverified.	S-e1c64020
+R-578	non-functional	An expired or too-short prompt is not valid cache proof.	666	Such runs are not counted.	S-e1c64020
+R-579	non-functional	A no-hit run may pass core integration but not caching.	667	Caching stays unverified.	S-e1c64020
+R-580	non-functional	Each adapter's live status is recorded independently; fake-backed tests are not real-account access.	668	Statuses are recorded per adapter.	S-e1c64020
+R-581	requirement	Gate C meets the frozen quality thresholds before a model and policy profile is presented as product-ready.	669	All thresholds are met.	S-e1c64020
+R-582	requirement	Bootstrap verification and external gate execution are reported separately from product completeness and live acceptance.	670	The report has separate sections.	S-e1c64020
+R-583	non-functional	Bootstrap templates and fact and answer records are validated in their own workflow, not invented in the product specification.	673	They are validated in that workflow.	S-e1c64020
+R-584	non-functional	The service is never marked fully complete while required contracts, durability or safety tests, live cache evidence or quality gates are blocked, failed or unverified.	674	The completion status reflects every gate.	S-e1c64020
+R-585	non-functional	The release package identifies source, configuration and model profiles, Gate A/B/C outcomes, deployment limitations and evidence locations.	675	The package lists each.	S-e1c64020
+R-586	non-functional	The release distinguishes an implemented adapter, a verified live integration and an approved data-processing deployment.	676	The three are reported separately.	S-e1c64020
+R-587	non-functional	Tested provider versions are pinned because provider behavior can change.	679	The versions are pinned in configuration.	S-e1c64020
